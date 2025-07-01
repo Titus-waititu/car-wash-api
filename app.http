@@ -1,0 +1,30 @@
+###
+@url = http://localhost:8080
+@RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiaG9seUBkdWNrLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc1MTM3MTI3NiwiZXhwIjoxNzUxOTc2MDc2fQ.bwgXi6p-1Sz1cv70TkI185IPjnyIIm67G7Pfo-_iMxo
+
+###
+GET {{url}}/users
+
+###
+POST {{url}}/users
+Content-Type: application/json
+
+{
+  "username": "John Doe",
+  "email": "holy@duck.com",
+  "password": "12345678",
+  "phone_number": "1234567890"
+}
+
+### LOGIN a new user
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "John Doe",
+  "password": "12345678"
+}
+
+### refresh token
+GET {{url}}/auth/refresh?id=1
+Authorization: Bearer {{RefreshToken}}
