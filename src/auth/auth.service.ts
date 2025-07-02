@@ -100,10 +100,12 @@ export class AuthService {
         message: 'Login successful',
         user: {
             id: user.id,
-            email: email,
+            email: user.email,
             role: user.role,
         },
-        ...tokens,
+        tokens: {
+          ...tokens
+        }
     };
   }
 
@@ -158,4 +160,23 @@ export class AuthService {
     };
   }
   
+    async googleAuthRedirect(user: any) {
+    const { id, email, role } = user;
+    const { accessToken, refreshToken } = await this.getTokens(
+      id,
+      email,
+      role,
+    );
+    return {
+      user: {
+        id,
+        email,
+        role,
+      },
+      tokens:{
+        accessToken,
+        refreshToken,
+      }
+    };
+  }
 }

@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { ILike, Repository } from 'typeorm';
+import { UserRole } from 'src/types';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -17,10 +18,10 @@ export class UsersService {
     const salt = await bcrypt.genSalt(10);
     return await bcrypt.hash(password, salt);
   }
-  
+
   //helper methods 2
   private sanitizeUser(user: User): Partial<User> {
-    const { password, ...sanitizedUser } = user;
+    const { password,hashedRefreshToken, ...sanitizedUser } = user;
     return sanitizedUser;
   }
 
@@ -123,5 +124,120 @@ export class UsersService {
       .catch((error) => {
         throw new Error(`Error deleting user with ID ${id}: ${error.message}`);
       });
+  }
+
+  async findByRole(role: UserRole): Promise<Partial<User>[]> {
+    return await this.usersRepository
+      .find({ where: { role } })
+      .then((users) => users.map((user) => this.sanitizeUser(user)))
+      .catch((error) => {
+        throw new Error(`Error finding users by role: ${error.message}`);
+      });
+  }
+
+  // Location-based service discovery
+  async findVendorsNearLocation(
+    latitude: number,
+    longitude: number,
+    radiusKm: number = 10,
+  ): Promise<Partial<User>[]> {
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.role = :role', { role: UserRole.VENDOR })
+      .andWhere('user.is_active = :active', { active: true })
+      .andWhere(
+        `(
+          6371 * acos(
+            cos(radians(:lat)) * cos(radians(user.latitude)) *
+            cos(radians(user.longitude) - radians(:lng)) +
+            sin(radians(:lat)) * sin(radians(user.latitude))
+          )
+        ) <= :radius`,
+        { lat: latitude, lng: longitude, radius: radiusKm },
+      )
+      .orderBy(
+        `(
+          6371 * acos(
+            cos(radians(:lat)) * cos(radians(user.latitude)) *
+            cos(radians(user.longitude) - radians(:lng)) +
+            sin(radians(:lat)) * sin(radians(user.latitude))
+          )
+        )`,
+        'ASC',
+      )
+      .setParameters({ lat: latitude, lng: longitude })
+      .getMany()
+      .then((users) => users.map((user) => this.sanitizeUser(user)))
+      .catch((error) => {
+        throw new Error(
+          `Error finding vendors near location: ${error.message}`,
+        );
+      });
+  }
+
+  async findVendorsByCity(city: string): Promise<Partial<User>[]> {
+    return await this.usersRepository
+      .find({
+        where: {
+          role: UserRole.VENDOR,
+          city,
+          is_active: true,
+        },
+        order: { average_rating: 'DESC' },
+      })
+      .then((users) => users.map((user) => this.sanitizeUser(user)))
+      .catch((error) => {
+        throw new Error(`Error finding vendors by city: ${error.message}`);
+      });
+  }
+
+  async getVendorStats(): Promise<any> {
+    const [totalVendors, activeVendors, totalCustomers] = await Promise.all([
+      this.usersRepository.count({ where: { role: UserRole.VENDOR } }),
+      this.usersRepository.count({
+        where: { role: UserRole.VENDOR, is_active: true },
+      }),
+      this.usersRepository.count({ where: { role: UserRole.CUSTOMER } }),
+    ]);
+
+    const avgRating = await this.usersRepository
+      .createQueryBuilder('user')
+      .select('AVG(user.average_rating)', 'avg_rating')
+      .where('user.role = :role', { role: UserRole.VENDOR })
+      .getRawOne();
+
+    return {
+      totalVendors,
+      activeVendors,
+      inactiveVendors: totalVendors - activeVendors,
+      totalCustomers,
+      averageVendorRating: parseFloat(avgRating.avg_rating) || 0,
+    };
+  }
+
+  async updateVendorRating(
+    vendorId: number,
+    newRating: number,
+  ): Promise<Partial<User>> {
+    const vendor = await this.usersRepository.findOne({
+      where: { id: vendorId, role: UserRole.VENDOR },
+    });
+
+    if (!vendor) {
+      throw new Error('Vendor not found');
+    }
+
+    // Calculate new average rating
+    const totalRatings = vendor.total_reviews;
+    const currentTotal = vendor.average_rating * totalRatings;
+    const newTotal = currentTotal + newRating;
+    const newAverage = newTotal / (totalRatings + 1);
+
+    await this.usersRepository.update(vendorId, {
+      average_rating: Math.round(newAverage * 100) / 100,
+      total_reviews: totalRatings + 1,
+    });
+
+    return this.findOne(vendorId);
   }
 }

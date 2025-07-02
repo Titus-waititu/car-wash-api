@@ -1,13 +1,17 @@
-###
-@url = http://localhost:8080
-@RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiaG9seUBkdWNrLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc1MTM3MTI3NiwiZXhwIjoxNzUxOTc2MDc2fQ.bwgXi6p-1Sz1cv70TkI185IPjnyIIm67G7Pfo-_iMxo
+### Car Wash API Test Requests
 
-###
-GET {{url}}/users
+@baseUrl = http://localhost:8080
+@contentType = application/json
+@RefreshToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiaG9seUBkdWNrLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc1MTQ2MzE1NSwiZXhwIjoxNzUxNDYzNzU1fQ.4PGWjprAfgzvjWsEequSXINluiMnnI7z1mqNOWDMPXs
 
-###
-POST {{url}}/users
-Content-Type: application/json
+### ========== USERS ==========
+
+### Get all users
+GET {{baseUrl}}/users
+
+### Create a new user
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
 
 {
   "username": "John Doe",
@@ -16,15 +20,250 @@ Content-Type: application/json
   "phone_number": "1234567890"
 }
 
-### LOGIN a new user
-POST {{url}}/auth/login
-Content-Type: application/json
+### Create a new user
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+  "username": "Titus waititu",
+  "email": "andreastailas96@gmail.com",
+  "password": "12345678",
+  "phone_number": "1234567890"
+}
+### Get user by ID
+GET {{baseUrl}}/users/1
+
+### Search users
+GET {{baseUrl}}/users?search=john
+
+### Update user
+PATCH {{baseUrl}}/users/1
+Content-Type: {{contentType}}
+
+{
+  "username": "John Updated"
+}
+
+### Delete user
+DELETE {{baseUrl}}/users/1
+
+### ========== AUTH ==========
+
+### Login user
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
 
 {
   "username": "John Doe",
   "password": "12345678"
 }
 
-### refresh token
-GET {{url}}/auth/refresh?id=1
+### Refresh token
+GET {{baseUrl}}/auth/refresh?id=1
 Authorization: Bearer {{RefreshToken}}
+
+### ========== SERVICES ==========
+
+### Create a new service
+POST {{baseUrl}}/services
+Content-Type: {{contentType}}
+
+{
+  "name": "Basic Car Wash",
+  "price": 25.99,
+  "description": "Basic exterior car wash with soap and rinse",
+  "duration_minutes": 30,
+  "userId": 1
+}
+
+### Get all services
+GET {{baseUrl}}/services
+
+### Search services
+GET {{baseUrl}}/services?search=wash
+
+### Get services by user
+GET {{baseUrl}}/services/user/1
+
+### Get services by price range
+GET {{baseUrl}}/services/price-range?minPrice=20&maxPrice=50
+
+### Get service by ID
+GET {{baseUrl}}/services/1
+
+### Update service
+PATCH {{baseUrl}}/services/1
+Content-Type: {{contentType}}
+
+{
+  "price": 29.99
+}
+
+### Delete service
+DELETE {{baseUrl}}/services/1
+
+### ========== BOOKINGS ==========
+
+### Create a new booking
+POST {{baseUrl}}/bookings
+Content-Type: {{contentType}}
+
+{
+  "booking_time": "2025-07-15T10:00:00Z",
+  "address": "123 Main St, City, State",
+  "userId": 1,
+  "serviceId": 1,
+  "paymentId": 1
+}
+
+### Get all bookings
+GET {{baseUrl}}/bookings
+
+### Get bookings by status
+GET {{baseUrl}}/bookings?status=pending
+
+### Get booking statistics
+GET {{baseUrl}}/bookings/stats
+
+### Get bookings by user
+GET {{baseUrl}}/bookings/user/1
+
+### Get bookings by service
+GET {{baseUrl}}/bookings/service/1
+
+### Get bookings by date range
+GET {{baseUrl}}/bookings/date-range?startDate=2025-07-01&endDate=2025-07-31
+
+### Get booking by ID
+GET {{baseUrl}}/bookings/1
+
+### Update booking
+PATCH {{baseUrl}}/bookings/1
+Content-Type: {{contentType}}
+
+{
+  "status": "confirmed"
+}
+
+### Update booking status
+PATCH {{baseUrl}}/bookings/1/status
+Content-Type: {{contentType}}
+
+{
+  "status": "completed"
+}
+
+### Delete booking
+DELETE {{baseUrl}}/bookings/1
+
+### ========== FLEET ==========
+
+### Create a new fleet vehicle
+POST {{baseUrl}}/fleet
+Content-Type: {{contentType}}
+
+{
+  "plate_number": "ABC-123",
+  "model": "Toyota Camry",
+  "type": "Service Vehicle",
+  "userId": 1
+}
+
+### Get all fleet vehicles
+GET {{baseUrl}}/fleet
+
+### Get fleet by status
+GET {{baseUrl}}/fleet?status=available
+
+### Search fleet
+GET {{baseUrl}}/fleet?search=toyota
+
+### Get fleet statistics
+GET {{baseUrl}}/fleet/stats
+
+### Get available vehicles
+GET {{baseUrl}}/fleet/available
+
+### Get vehicles by user
+GET {{baseUrl}}/fleet/user/1
+
+### Get vehicles by type
+GET {{baseUrl}}/fleet/type/Service Vehicle
+
+### Get vehicle by plate number
+GET {{baseUrl}}/fleet/plate/ABC-123
+
+### Get fleet vehicle by ID
+GET {{baseUrl}}/fleet/1
+
+### Update fleet vehicle
+PATCH {{baseUrl}}/fleet/1
+Content-Type: {{contentType}}
+
+{
+  "status": "in-service"
+}
+
+### Update vehicle status
+PATCH {{baseUrl}}/fleet/1/status
+Content-Type: {{contentType}}
+
+{
+  "status": "dispatched"
+}
+
+### Delete fleet vehicle
+DELETE {{baseUrl}}/fleet/1
+
+### ========== REVIEWS ==========
+
+### Create a new review
+POST {{baseUrl}}/reviews
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Excellent service! Very satisfied with the car wash.",
+  "userId": 1
+}
+
+### Get all reviews
+GET {{baseUrl}}/reviews
+
+### Get reviews by rating
+GET {{baseUrl}}/reviews?rating=5
+
+### Get review statistics
+GET {{baseUrl}}/reviews/stats
+
+### Get average rating
+GET {{baseUrl}}/reviews/average-rating
+
+### Get top reviews
+GET {{baseUrl}}/reviews/top?limit=5
+
+### Get recent reviews
+GET {{baseUrl}}/reviews/recent?limit=10
+
+### Get reviews by user
+GET {{baseUrl}}/reviews/user/1
+
+### Get review by ID
+GET {{baseUrl}}/reviews/1
+
+### Update review
+PATCH {{baseUrl}}/reviews/1
+Content-Type: {{contentType}}
+
+{
+  "rating": 4,
+  "comment": "Good service, but could be better."
+}
+
+### Delete review
+DELETE {{baseUrl}}/reviews/1
+
+### ========== API DOCUMENTATION ==========
+
+### Access Swagger Documentation
+GET {{baseUrl}}/api/docs

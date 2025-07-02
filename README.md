@@ -1,61 +1,264 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚗 Car Wash Web Application API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive Car Wash management system built with NestJS, TypeORM, and PostgreSQL. This API provides a complete solution for managing car wash services, bookings, fleet vehicles, user reviews, and more.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-## Description
+- **User Management**: Customer, vendor, admin, fleet manager, and support staff roles
+- **Service Management**: Create and manage various car wash services
+- **Booking System**: Schedule and manage car wash appointments
+- **Fleet Management**: Track and manage service vehicles
+- **Review System**: Customer feedback and rating system
+- **Authentication**: JWT-based authentication with refresh tokens
+- **Payment Integration**: Support for multiple payment methods
+- **API Documentation**: Interactive Swagger documentation
+- **Caching**: Redis-based caching for improved performance
+- **Rate Limiting**: Protection against excessive API requests
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Tech Stack
 
-## Project setup
+- **Backend**: NestJS (Node.js framework)
+- **Database**: PostgreSQL with TypeORM
+- **Authentication**: JWT tokens with Passport
+- **Caching**: Redis with ioredis
+- **Documentation**: Swagger/OpenAPI
+- **Validation**: class-validator and class-transformer
+- **Security**: Helmet, CORS, Rate limiting
+
+## 📋 Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL (v13 or higher)
+- Redis (v6 or higher)
+- pnpm package manager
+
+## 🔧 Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd car-wash-api
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env` file in the root directory:
+
+   ```env
+   # Database Configuration
+   DATABASE_HOST=localhost
+   DATABASE_PORT=5432
+   DATABASE_USERNAME=your_db_username
+   DATABASE_PASSWORD=your_db_password
+   DATABASE_NAME=car_wash_db
+   TYPEORM_SYNC=true
+   TYPEORM_LOGGING=false
+
+   # Redis Configuration
+   REDIS_URL=redis://localhost:6379
+
+   # JWT Configuration
+   JWT_SECRET=your_jwt_secret
+   JWT_REFRESH_SECRET=your_jwt_refresh_secret
+
+   # Application Configuration
+   PORT=8080
+
+   # Cache Configuration
+   CACHE_TTL=60000
+
+   # Rate Limiting
+   THROTTLE_TTL=60
+   THROTTLE_LIMIT=100
+   ```
+
+4. **Database Setup**
+   ```bash
+   # Create PostgreSQL database
+   createdb car_wash_db
+   ```
+
+## 🚀 Running the Application
 
 ```bash
-$ pnpm install
+# Development mode
+pnpm run start:dev
+
+# Production mode
+pnpm run start:prod
+
+# Watch mode
+pnpm run start
 ```
 
-## Compile and run the project
+The API will be available at `http://localhost:8080`
+
+## 📚 API Documentation
+
+Interactive API documentation is available at:
+
+- **Swagger UI**: `http://localhost:8080/api/docs`
+
+## 🔗 API Endpoints
+
+### Users
+
+- `GET /users` - Get all users
+- `POST /users` - Create a new user
+- `GET /users/:id` - Get user by ID
+- `PATCH /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+### Services
+
+- `GET /services` - Get all services
+- `POST /services` - Create a new service
+- `GET /services/:id` - Get service by ID
+- `GET /services/user/:userId` - Get services by user
+- `GET /services/price-range` - Get services by price range
+- `PATCH /services/:id` - Update service
+- `DELETE /services/:id` - Delete service
+
+### Bookings
+
+- `GET /bookings` - Get all bookings
+- `POST /bookings` - Create a new booking
+- `GET /bookings/:id` - Get booking by ID
+- `GET /bookings/stats` - Get booking statistics
+- `GET /bookings/user/:userId` - Get bookings by user
+- `GET /bookings/service/:serviceId` - Get bookings by service
+- `PATCH /bookings/:id` - Update booking
+- `PATCH /bookings/:id/status` - Update booking status
+- `DELETE /bookings/:id` - Delete booking
+
+### Fleet
+
+- `GET /fleet` - Get all vehicles
+- `POST /fleet` - Add new vehicle
+- `GET /fleet/:id` - Get vehicle by ID
+- `GET /fleet/stats` - Get fleet statistics
+- `GET /fleet/available` - Get available vehicles
+- `GET /fleet/user/:userId` - Get vehicles by user
+- `PATCH /fleet/:id` - Update vehicle
+- `PATCH /fleet/:id/status` - Update vehicle status
+- `DELETE /fleet/:id` - Delete vehicle
+
+### Reviews
+
+- `GET /reviews` - Get all reviews
+- `POST /reviews` - Create a new review
+- `GET /reviews/:id` - Get review by ID
+- `GET /reviews/stats` - Get review statistics
+- `GET /reviews/user/:userId` - Get reviews by user
+- `GET /reviews/top` - Get top-rated reviews
+- `PATCH /reviews/:id` - Update review
+- `DELETE /reviews/:id` - Delete review
+
+## 🧪 Testing
+
+Use the provided `app.http` file to test API endpoints with VS Code REST Client extension.
 
 ```bash
-# development
-$ pnpm run start
+# Run unit tests
+pnpm run test
 
-# watch mode
-$ pnpm run start:dev
+# Run e2e tests
+pnpm run test:e2e
 
-# production mode
-$ pnpm run start:prod
+# Run test coverage
+pnpm run test:cov
 ```
 
-## Run tests
+## 🔒 Authentication
 
-```bash
-# unit tests
-$ pnpm run test
+The API uses JWT-based authentication:
+
+1. **Register/Login**: Create account or login to get access token
+2. **Authorization Header**: Include `Bearer <token>` in requests
+3. **Refresh Token**: Use refresh endpoint to get new access token
+
+## 📊 Database Schema
+
+The application uses the following main entities:
+
+- **Users**: Customer and staff management
+- **Services**: Car wash service definitions
+- **Bookings**: Appointment scheduling
+- **Fleet**: Service vehicle management
+- **Reviews**: Customer feedback
+- **Payments**: Transaction records
+
+## 🚦 Error Handling
+
+The API returns structured error responses:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "error": "Bad Request"
+}
+```
+
+## 🛡️ Security Features
+
+- **Helmet**: Security headers protection
+- **CORS**: Cross-origin resource sharing
+- **Rate Limiting**: API request throttling
+- **Input Validation**: Request data validation
+- **SQL Injection Protection**: TypeORM query protection
+
+## 📈 Performance Features
+
+- **Redis Caching**: Fast data retrieval
+- **Database Indexing**: Optimized queries
+- **Connection Pooling**: Efficient database connections
+- **Pagination**: Large dataset handling
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙋‍♂️ Support
+
+For support and questions:
+
+- Create an issue in the repository
+- Contact the development team
+
+## 🗺️ Roadmap
+
+- [ ] Mobile API endpoints
+- [ ] Real-time notifications
+- [ ] Advanced analytics
+- [ ] Multi-language support
+- [ ] API versioning
+- [ ] Microservices architecture
+      $ pnpm run test
 
 # e2e tests
+
 $ pnpm run test:e2e
 
 # test coverage
+
 $ pnpm run test:cov
-```
+
+````
 
 ## Deployment
 
@@ -66,7 +269,7 @@ If you are looking for a cloud-based platform to deploy your NestJS application,
 ```bash
 $ pnpm install -g @nestjs/mau
 $ mau deploy
-```
+````
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 

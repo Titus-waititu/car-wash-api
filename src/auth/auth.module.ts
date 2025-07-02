@@ -10,6 +10,7 @@ import { AtStrategy } from './strategies/at.strategy';
 import { RfStrategy } from './strategies/rt.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
+import { GoogleStrategy } from './strategies/google.strategies';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RolesGuard } from './guards/roles.guard';
     RfStrategy,
     JwtStrategy,
     RolesGuard,
+    GoogleStrategy
   ],
   exports: [JwtModule, RolesGuard, AuthService],
 })

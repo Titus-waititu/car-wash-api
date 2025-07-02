@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { VehicleStatus } from '../entities/fleet.entity';
 
 export class CreateFleetDto {
@@ -15,9 +21,10 @@ export class CreateFleetDto {
   type: string;
 
   @IsEnum(VehicleStatus)
-  @IsNotEmpty()
-  status: VehicleStatus;
+  @IsOptional()
+  status?: VehicleStatus;
 
+  @IsNumber()
   @IsNotEmpty()
-  userId: number; 
+  userId: number;
 }
