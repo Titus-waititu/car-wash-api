@@ -17,7 +17,9 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingStatus } from './entities/booking.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Public } from 'src/auth/decorators/public.decorator';
 
+@Public()
 @ApiTags('bookings')
 @Controller('bookings')
 export class BookingsController {
@@ -60,7 +62,7 @@ export class BookingsController {
     status: 200,
     description: 'User bookings retrieved successfully.',
   })
-  findByUser(@Param('userId', ParseIntPipe) userId: number) {
+  findByUser(@Param('userId') userId: string) {
     return this.bookingsService.findByUser(userId);
   }
 
@@ -70,7 +72,7 @@ export class BookingsController {
     status: 200,
     description: 'Service bookings retrieved successfully.',
   })
-  findByService(@Param('serviceId', ParseIntPipe) serviceId: number) {
+  findByService(@Param('serviceId') serviceId: string) {
     return this.bookingsService.findByService(serviceId);
   }
 
@@ -104,7 +106,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Get booking by ID' })
   @ApiResponse({ status: 200, description: 'Booking retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Booking not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);
   }
 
@@ -113,7 +115,7 @@ export class BookingsController {
   @ApiResponse({ status: 200, description: 'Booking updated successfully.' })
   @ApiResponse({ status: 404, description: 'Booking not found.' })
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body(ValidationPipe) updateBookingDto: UpdateBookingDto,
   ) {
     return this.bookingsService.update(id, updateBookingDto);
@@ -127,7 +129,7 @@ export class BookingsController {
   })
   @ApiResponse({ status: 400, description: 'Invalid status transition.' })
   updateStatus(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body('status') status: BookingStatus,
   ) {
     return this.bookingsService.updateBookingStatus(id, status);
@@ -138,7 +140,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Delete booking by ID' })
   @ApiResponse({ status: 200, description: 'Booking deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Booking not found.' })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.bookingsService.remove(id);
   }
 
@@ -183,7 +185,7 @@ export class BookingsController {
     description: 'Booking location updated successfully.',
   })
   updateBookingLocation(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() locationData: { latitude: number; longitude: number },
   ) {
     return this.bookingsService.updateBookingLocation(
@@ -196,7 +198,7 @@ export class BookingsController {
   @Patch(':id/start')
   @ApiOperation({ summary: 'Start service for booking' })
   @ApiResponse({ status: 200, description: 'Service started successfully.' })
-  startService(@Param('id', ParseIntPipe) id: number) {
+  startService(@Param('id') id: string) {
     return this.bookingsService.startService(id);
   }
 
@@ -204,7 +206,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Complete service for booking' })
   @ApiResponse({ status: 200, description: 'Service completed successfully.' })
   completeService(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() completionData?: { serviceNotes?: string },
   ) {
     return this.bookingsService.completeService(

@@ -71,7 +71,7 @@ export class FleetService {
     return await queryBuilder.getMany();
   }
 
-  async findOne(id: number): Promise<Fleet> {
+  async findOne(id: string): Promise<Fleet> {
     const vehicle = await this.fleetRepository.findOne({
       where: { id },
       relations: ['user'],
@@ -99,7 +99,7 @@ export class FleetService {
     return vehicle;
   }
 
-  async update(id: number, updateFleetDto: UpdateFleetDto): Promise<Fleet> {
+  async update(id: string, updateFleetDto: UpdateFleetDto): Promise<Fleet> {
     const vehicle = await this.findOne(id);
 
     // Check if plate number is being updated and if it already exists
@@ -137,7 +137,7 @@ export class FleetService {
     return await this.fleetRepository.save(vehicle);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
+  async remove(id: string): Promise<{ message: string }> {
     const vehicle = await this.findOne(id);
 
     // Check if vehicle can be deleted (not in service or dispatched)
@@ -154,7 +154,7 @@ export class FleetService {
     return { message: `Vehicle with ID ${id} successfully deleted` };
   }
 
-  async findByUser(userId: number): Promise<Fleet[]> {
+  async findByUser(userId: string): Promise<Fleet[]> {
     return await this.fleetRepository.find({
       where: { user: { id: userId } },
       relations: ['user'],
@@ -162,7 +162,7 @@ export class FleetService {
     });
   }
 
-  async updateVehicleStatus(id: number, status: VehicleStatus): Promise<Fleet> {
+  async updateVehicleStatus(id: string, status: VehicleStatus): Promise<Fleet> {
     const vehicle = await this.findOne(id);
     vehicle.status = status;
     return await this.fleetRepository.save(vehicle);
@@ -216,7 +216,7 @@ export class FleetService {
 
   // Real-time vehicle tracking
   async updateVehicleLocation(
-    id: number,
+    id: string,
     latitude: number,
     longitude: number,
   ): Promise<Fleet> {
@@ -229,7 +229,7 @@ export class FleetService {
     return await this.fleetRepository.save(vehicle);
   }
 
-  async getVehicleLocation(id: number): Promise<{
+  async getVehicleLocation(id: string): Promise<{
     latitude: number;
     longitude: number;
     lastUpdate: Date;
@@ -280,7 +280,7 @@ export class FleetService {
 
   // Maintenance scheduling
   async scheduleMaintenanceReminder(
-    id: number,
+    id: string,
     nextMaintenanceDate: Date,
   ): Promise<Fleet> {
     const vehicle = await this.findOne(id);
@@ -304,7 +304,7 @@ export class FleetService {
   }
 
   // Expense management
-  async updateDailyExpense(id: number, expense: number): Promise<Fleet> {
+  async updateDailyExpense(id: string, expense: number): Promise<Fleet> {
     const vehicle = await this.findOne(id);
 
     vehicle.daily_expense = expense;
@@ -313,7 +313,7 @@ export class FleetService {
   }
 
   async getExpenseReport(
-    userId: number,
+    userId: string,
     startDate: Date,
     endDate: Date,
   ): Promise<any> {

@@ -19,7 +19,7 @@ import { GoogleOauthGuard } from './guards/google.oauth.guard';
 
 export interface RequestWithUser extends Request {
   user: {
-    sub: number;
+    sub: string;
     email: string;
     refreshToken: string;
   };
@@ -37,14 +37,14 @@ export class AuthController {
 
   @Public()
   @Get('logout')
-  async logout(@Body('userId') userId: number) {
+  async logout(@Body('userId') userId: string) {
     return this.authService.logout(userId);
   }
 
   @UseGuards(RtGuard)
   @Get('refresh')
   @Public()
-  refresh(@Query('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
+  refresh(@Query('id') id: string, @Req() req: RequestWithUser) {
     const { user } = req;
     if (user.sub !== id) {
       throw new UnauthorizedException('Invalid User');

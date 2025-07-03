@@ -22,15 +22,12 @@ export class CreateBookingDto {
   @IsOptional()
   address?: string;
 
-   @IsNumber()
   @IsNotEmpty()
-  userId: number;
+  userId: string;
 
- @IsNumber()
   @IsNotEmpty()
-  serviceId: number;
+  serviceId: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  paymentId: number;
+  // @IsNotEmpty()
+  // paymentId: string;
 }

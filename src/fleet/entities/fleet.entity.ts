@@ -16,8 +16,8 @@ export enum VehicleStatus {
 
 @Entity()
 export class Fleet {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   plate_number: string;

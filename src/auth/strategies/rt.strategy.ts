@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 
 
 interface JwtPayload {
-  sub: number;
+  sub: string;
   email: string;
   [key: string]: any;
 }

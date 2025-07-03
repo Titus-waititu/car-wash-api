@@ -14,8 +14,8 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   username: string;
@@ -28,6 +28,9 @@ export class User {
 
   @Column({ nullable: true })
    phone_number: string;
+
+     @Column({ nullable: true })
+     profilePicture: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;

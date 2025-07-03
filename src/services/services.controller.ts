@@ -17,8 +17,10 @@ import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiTags('services')
+@Public()
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
@@ -49,7 +51,7 @@ export class ServicesController {
     status: 200,
     description: 'User services retrieved successfully.',
   })
-  findByUser(@Param('userId', ParseIntPipe) userId: number) {
+  findByUser(@Param('userId') userId: string) {
     return this.servicesService.findByUser(userId);
   }
 
@@ -72,7 +74,7 @@ export class ServicesController {
   @ApiOperation({ summary: 'Get service by ID' })
   @ApiResponse({ status: 200, description: 'Service retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Service not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.servicesService.findOne(id);
   }
 
@@ -81,7 +83,7 @@ export class ServicesController {
   @ApiResponse({ status: 200, description: 'Service updated successfully.' })
   @ApiResponse({ status: 404, description: 'Service not found.' })
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body(ValidationPipe) updateServiceDto: UpdateServiceDto,
   ) {
     return this.servicesService.update(id, updateServiceDto);
@@ -92,7 +94,7 @@ export class ServicesController {
   @ApiOperation({ summary: 'Delete service by ID' })
   @ApiResponse({ status: 200, description: 'Service deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Service not found.' })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.servicesService.remove(id);
   }
 

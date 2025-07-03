@@ -12,7 +12,6 @@ export class CreateServiceDto {
   @IsNotEmpty()
   name: string;
 
-  @IsDecimal()
   @IsPositive()
   price: number;
 
@@ -24,7 +23,6 @@ export class CreateServiceDto {
   @IsPositive()
   duration_minutes: number;
 
-  @IsNumber()
   @IsNotEmpty()
-  userId: number;
+  userId: string;
 }

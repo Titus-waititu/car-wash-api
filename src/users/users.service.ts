@@ -73,7 +73,7 @@ export class UsersService {
     return users.map((user) => this.sanitizeUser(user));
   }
 
-  async findOne(id: number): Promise<Partial<User>> {
+  async findOne(id: string): Promise<Partial<User>> {
     return await this.usersRepository
       .findOne({
         where: { id },
@@ -90,7 +90,7 @@ export class UsersService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<Partial<User>> {
     return await this.usersRepository
@@ -112,7 +112,7 @@ export class UsersService {
       });
   }
 
-  async remove(id: number): Promise<{ message: string }> {
+  async remove(id: string): Promise<{ message: string }> {
     return await this.usersRepository
       .delete(id)
       .then((result) => {
@@ -216,7 +216,7 @@ export class UsersService {
   }
 
   async updateVendorRating(
-    vendorId: number,
+    vendorId: string,
     newRating: number,
   ): Promise<Partial<User>> {
     const vendor = await this.usersRepository.findOne({

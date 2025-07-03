@@ -22,14 +22,14 @@ export class AuthService {
   }
 
   // Helper method to remove password from profile
-  private async saveRefreshToken(userId: number, refreshToken: string) {
+  private async saveRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
     await this.usersRepository.update(userId, {
       hashedRefreshToken: hashedRefreshToken,
     });
   }
 
-  async getTokens(id: number, email: string, role: string) {
+  async getTokens(id: string, email: string, role: string) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -109,7 +109,7 @@ export class AuthService {
     };
   }
 
-  async logout(userId: number) {
+  async logout(userId: string) {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
       select: ['id', 'email', 'role', 'hashedRefreshToken'],
@@ -130,7 +130,7 @@ export class AuthService {
 
   }
 
-  async refreshTokens(id:number,refreshToken:string){
+  async refreshTokens(id:string,refreshToken:string){
     const user = await this.usersRepository.findOne({
       where: { id },
       select: ['id', 'email', 'role', 'hashedRefreshToken'],

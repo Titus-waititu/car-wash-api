@@ -10,7 +10,6 @@ export class CreateReviewDto {
   @IsNotEmpty()
   comment: string;
 
-  @IsInt()
   @IsNotEmpty()
-  userId: number; 
+  userId: string; 
 }

@@ -125,6 +125,10 @@ export class CreateUserDto {
   @MaxLength(200)
   business_name?: string;
 
+  @IsString()
+  @IsOptional()
+  profilePicture?: string;
+
   @ApiPropertyOptional({
     description: 'Business license number (for vendors)',
     example: 'BL123456',

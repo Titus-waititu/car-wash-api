@@ -20,8 +20,8 @@ export enum BookingStatus {
 
 @Entity()
 export class Booking {
-  @PrimaryGeneratedColumn()
-  booking_id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ type: 'timestamp' })
   booking_time: Date;

@@ -15,5 +15,5 @@ export class CreatePaymentDto {
   method: PaymentMethod;
 
   @IsNotEmpty()
-  bookingId: number;
+  bookingId: string;
 }

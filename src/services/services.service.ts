@@ -53,7 +53,7 @@ export class ServicesService {
     });
   }
 
-  async findOne(id: number): Promise<Service> {
+  async findOne(id: string): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['user', 'bookings'],
@@ -67,7 +67,7 @@ export class ServicesService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
     const service = await this.findOne(id);
@@ -90,13 +90,13 @@ export class ServicesService {
     return await this.serviceRepository.save(service);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
+  async remove(id: string): Promise<{ message: string }> {
     const service = await this.findOne(id);
     await this.serviceRepository.remove(service);
     return { message: `Service with ID ${id} successfully deleted` };
   }
 
-  async findByUser(userId: number): Promise<Service[]> {
+  async findByUser(userId: string): Promise<Service[]> {
     return await this.serviceRepository.find({
       where: { user: { id: userId } },
       relations: ['user'],

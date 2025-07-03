@@ -53,7 +53,7 @@ export class ReviewsService {
     return await queryBuilder.getMany();
   }
 
-  async findOne(id: number): Promise<Review> {
+  async findOne(id: string): Promise<Review> {
     const review = await this.reviewRepository.findOne({
       where: { id },
       relations: ['user'],
@@ -67,9 +67,9 @@ export class ReviewsService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateReviewDto: UpdateReviewDto,
-    currentUserId?: number,
+    currentUserId?: string,
   ): Promise<Review> {
     const review = await this.findOne(id);
 
@@ -84,8 +84,8 @@ export class ReviewsService {
   }
 
   async remove(
-    id: number,
-    currentUserId?: number,
+    id: string,
+    currentUserId?: string,
   ): Promise<{ message: string }> {
     const review = await this.findOne(id);
 
@@ -99,7 +99,7 @@ export class ReviewsService {
     return { message: `Review with ID ${id} successfully deleted` };
   }
 
-  async findByUser(userId: number): Promise<Review[]> {
+  async findByUser(userId: string): Promise<Review[]> {
     return await this.reviewRepository.find({
       where: { user: { id: userId } },
       relations: ['user'],

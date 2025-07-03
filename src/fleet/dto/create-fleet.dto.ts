@@ -24,7 +24,6 @@ export class CreateFleetDto {
   @IsOptional()
   status?: VehicleStatus;
 
-  @IsNumber()
   @IsNotEmpty()
-  userId: number;
+  userId: string;
 }

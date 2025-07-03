@@ -86,7 +86,7 @@ export class FleetController {
     status: 200,
     description: 'User vehicles retrieved successfully.',
   })
-  findByUser(@Param('userId', ParseIntPipe) userId: number) {
+  findByUser(@Param('userId') userId: string) {
     return this.fleetService.findByUser(userId);
   }
 
@@ -112,7 +112,7 @@ export class FleetController {
   @ApiOperation({ summary: 'Get vehicle by ID' })
   @ApiResponse({ status: 200, description: 'Vehicle retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Vehicle not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.fleetService.findOne(id);
   }
 
@@ -122,7 +122,7 @@ export class FleetController {
   @ApiResponse({ status: 404, description: 'Vehicle not found.' })
   @ApiResponse({ status: 409, description: 'Plate number already exists.' })
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body(ValidationPipe) updateFleetDto: UpdateFleetDto,
   ) {
     return this.fleetService.update(id, updateFleetDto);
@@ -136,7 +136,7 @@ export class FleetController {
   })
   @ApiResponse({ status: 404, description: 'Vehicle not found.' })
   updateStatus(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body('status') status: VehicleStatus,
   ) {
     return this.fleetService.updateVehicleStatus(id, status);
@@ -151,7 +151,7 @@ export class FleetController {
     status: 409,
     description: 'Cannot delete vehicle in service.',
   })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.fleetService.remove(id);
   }
 
@@ -162,7 +162,7 @@ export class FleetController {
     description: 'Vehicle location updated successfully.',
   })
   updateVehicleLocation(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() locationData: { latitude: number; longitude: number },
   ) {
     return this.fleetService.updateVehicleLocation(
@@ -178,7 +178,7 @@ export class FleetController {
     status: 200,
     description: 'Vehicle location retrieved successfully.',
   })
-  getVehicleLocation(@Param('id', ParseIntPipe) id: number) {
+  getVehicleLocation(@Param('id') id: string) {
     return this.fleetService.getVehicleLocation(id);
   }
 
@@ -221,7 +221,7 @@ export class FleetController {
     description: 'Maintenance scheduled successfully.',
   })
   scheduleMaintenanceReminder(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() maintenanceData: { nextMaintenanceDate: string },
   ) {
     return this.fleetService.scheduleMaintenanceReminder(
@@ -237,7 +237,7 @@ export class FleetController {
     description: 'Vehicle expense updated successfully.',
   })
   updateDailyExpense(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() expenseData: { expense: number },
   ) {
     return this.fleetService.updateDailyExpense(id, expenseData.expense);
@@ -261,7 +261,7 @@ export class FleetController {
     description: 'Expense report retrieved successfully.',
   })
   getExpenseReport(
-    @Query('userId', ParseIntPipe) userId: number,
+    @Query('userId') userId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {

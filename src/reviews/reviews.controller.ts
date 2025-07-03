@@ -16,8 +16,10 @@ import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiTags('reviews')
+@Public()
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
@@ -98,7 +100,7 @@ export class ReviewsController {
     status: 200,
     description: 'User reviews retrieved successfully.',
   })
-  findByUser(@Param('userId', ParseIntPipe) userId: number) {
+  findByUser(@Param('userId') userId: string) {
     return this.reviewsService.findByUser(userId);
   }
 
@@ -106,7 +108,7 @@ export class ReviewsController {
   @ApiOperation({ summary: 'Get review by ID' })
   @ApiResponse({ status: 200, description: 'Review retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Review not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.reviewsService.findOne(id);
   }
 
@@ -119,7 +121,7 @@ export class ReviewsController {
     description: 'Forbidden - can only update own reviews.',
   })
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body(ValidationPipe) updateReviewDto: UpdateReviewDto,
   ) {
     // Note: In a real application, you would get currentUserId from JWT token
@@ -135,7 +137,7 @@ export class ReviewsController {
     status: 403,
     description: 'Forbidden - can only delete own reviews.',
   })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     // Note: In a real application, you would get currentUserId from JWT token
     return this.reviewsService.remove(id);
   }

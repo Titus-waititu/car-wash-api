@@ -47,14 +47,14 @@ export class BookingsService {
     }
 
     // Validate payment exists
-    const payment = await this.paymentRepository.findOne({
-      where: { id: createBookingDto.paymentId },
-    });
-    if (!payment) {
-      throw new NotFoundException(
-        `Payment with ID ${createBookingDto.paymentId} not found`,
-      );
-    }
+    // const payment = await this.paymentRepository.findOne({
+    //   where: { id: createBookingDto.paymentId },
+    // });
+    // if (!payment) {
+    //   throw new NotFoundException(
+    //     `Payment with ID ${createBookingDto.paymentId} not found`,
+    //   );
+    // }
 
     // Check if booking time is in the future
     const bookingTime = new Date(createBookingDto.booking_time);
@@ -68,7 +68,7 @@ export class BookingsService {
       address: createBookingDto.address,
       user,
       service,
-      payment,
+      // payment,
     });
 
     return await this.bookingRepository.save(newBooking);
@@ -89,9 +89,9 @@ export class BookingsService {
     return await queryBuilder.getMany();
   }
 
-  async findOne(id: number): Promise<Booking> {
+  async findOne(id: string): Promise<Booking> {
     const booking = await this.bookingRepository.findOne({
-      where: { booking_id: id },
+      where: { id: id },
       relations: ['user', 'service', 'payment'],
     });
 
@@ -103,7 +103,7 @@ export class BookingsService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateBookingDto: UpdateBookingDto,
   ): Promise<Booking> {
     const booking = await this.findOne(id);
@@ -130,7 +130,7 @@ export class BookingsService {
     return await this.bookingRepository.save(booking);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
+  async remove(id: string): Promise<{ message: string }> {
     const booking = await this.findOne(id);
 
     // Only allow deletion of pending or cancelled bookings
@@ -147,7 +147,7 @@ export class BookingsService {
     return { message: `Booking with ID ${id} successfully deleted` };
   }
 
-  async findByUser(userId: number): Promise<Booking[]> {
+  async findByUser(userId: string): Promise<Booking[]> {
     return await this.bookingRepository.find({
       where: { user: { id: userId } },
       relations: ['user', 'service', 'payment'],
@@ -155,7 +155,7 @@ export class BookingsService {
     });
   }
 
-  async findByService(serviceId: number): Promise<Booking[]> {
+  async findByService(serviceId: string): Promise<Booking[]> {
     return await this.bookingRepository.find({
       where: { service: { id: serviceId } },
       relations: ['user', 'service', 'payment'],
@@ -174,7 +174,7 @@ export class BookingsService {
   }
 
   async updateBookingStatus(
-    id: number,
+    id: string,
     status: BookingStatus,
   ): Promise<Booking> {
     const booking = await this.findOne(id);
@@ -308,7 +308,7 @@ export class BookingsService {
 
   // Real-time tracking
   async updateBookingLocation(
-    id: number,
+    id: string,
     latitude: number,
     longitude: number,
   ): Promise<Booking> {
@@ -320,7 +320,7 @@ export class BookingsService {
     return await this.bookingRepository.save(booking);
   }
 
-  async startService(id: number): Promise<Booking> {
+  async startService(id: string): Promise<Booking> {
     const booking = await this.findOne(id);
 
     booking.actual_start_time = new Date();
@@ -329,7 +329,7 @@ export class BookingsService {
     return await this.bookingRepository.save(booking);
   }
 
-  async completeService(id: number, serviceNotes?: string): Promise<Booking> {
+  async completeService(id: string, serviceNotes?: string): Promise<Booking> {
     const booking = await this.findOne(id);
 
     booking.completion_time = new Date();

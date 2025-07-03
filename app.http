@@ -70,10 +70,10 @@ Content-Type: {{contentType}}
 
 {
   "name": "Basic Car Wash",
-  "price": 25.99,
+  "price": 25.00,
   "description": "Basic exterior car wash with soap and rinse",
   "duration_minutes": 30,
-  "userId": 1
+  "userId": "d7f74df6-caee-40fc-bc5b-3887a85636a5"
 }
 
 ### Get all services
@@ -111,10 +111,9 @@ Content-Type: {{contentType}}
 {
   "booking_time": "2025-07-15T10:00:00Z",
   "address": "123 Main St, City, State",
-  "userId": 1,
-  "serviceId": 1,
-  "paymentId": 1
-}
+  "userId": "d7f74df6-caee-40fc-bc5b-3887a85636a5",
+  "serviceId": "38f62908-d41a-4339-916f-7d5a0bbc2a61"
+  }
 
 ### Get all bookings
 GET {{baseUrl}}/bookings
@@ -126,7 +125,7 @@ GET {{baseUrl}}/bookings?status=pending
 GET {{baseUrl}}/bookings/stats
 
 ### Get bookings by user
-GET {{baseUrl}}/bookings/user/1
+GET {{baseUrl}}/bookings/user/d7f74df6-caee-40fc-bc5b-3887a85636a5
 
 ### Get bookings by service
 GET {{baseUrl}}/bookings/service/1
