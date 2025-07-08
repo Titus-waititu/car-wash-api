@@ -1,5 +1,13 @@
+import { Service } from 'src/services/entities/service.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
 @Entity()
 export class Review {
@@ -26,10 +34,17 @@ export class Review {
   })
   updated_at: Date;
 
-  @ManyToOne(() => User, (user) => user.reviews,{
+  @ManyToOne(() => User, (user) => user.reviews, {
     onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn()
   user: Relation<User>;
+
+  @ManyToOne(() => Service, (service) => service.reviews, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn()
+  service: Relation<Service>;
 }

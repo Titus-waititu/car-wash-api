@@ -75,7 +75,7 @@ export class AuthService {
         { email: email },
         { username: username }
       ],
-      select: ['id', 'email', 'role', 'password', 'hashedRefreshToken'],
+      select: ['id','username', 'email', 'role', 'password', 'hashedRefreshToken'],
     });
 
     if (!user) {
@@ -100,6 +100,7 @@ export class AuthService {
         message: 'Login successful',
         user: {
             id: user.id,
+            username: user.username,
             email: user.email,
             role: user.role,
         },
@@ -161,7 +162,7 @@ export class AuthService {
   }
   
     async googleAuthRedirect(user: any) {
-    const { id, email, role } = user;
+    const { id, email, role,username } = user;
     const { accessToken, refreshToken } = await this.getTokens(
       id,
       email,
@@ -170,6 +171,7 @@ export class AuthService {
     return {
       user: {
         id,
+        username,
         email,
         role,
       },

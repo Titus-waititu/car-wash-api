@@ -1,3 +1,4 @@
+import { VehicleStatus } from 'src/types';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -7,12 +8,6 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-
-export enum VehicleStatus {
-  AVAILABLE = 'available',
-  IN_SERVICE = 'in-service',
-  DISPATCHED = 'dispatched',
-}
 
 @Entity()
 export class Fleet {
@@ -31,7 +26,7 @@ export class Fleet {
   @Column({
     type: 'enum',
     enum: VehicleStatus,
-    default: VehicleStatus.AVAILABLE,
+    default: VehicleStatus.WAITING,
   })
   status: string;
 

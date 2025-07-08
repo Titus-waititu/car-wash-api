@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { PaymentMethod, PaymentStatus } from 'src/types';
 
 export class CreatePaymentDto {
@@ -12,7 +12,10 @@ export class CreatePaymentDto {
 
   @IsEnum(PaymentMethod)
   @IsNotEmpty()
-  method: PaymentMethod;
+  payment_method: PaymentMethod;
+
+  @IsOptional()
+  transaction_id:string
 
   @IsNotEmpty()
   bookingId: string;

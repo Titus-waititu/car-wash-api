@@ -12,4 +12,7 @@ export class CreateReviewDto {
 
   @IsNotEmpty()
   userId: string; 
+
+  @IsNotEmpty()
+  serviceId: string; 
 }

@@ -40,7 +40,7 @@ export class ReviewsController {
     description: 'Filter by rating (1-5)',
   })
   @ApiResponse({ status: 200, description: 'Reviews retrieved successfully.' })
-  findAll(@Query('rating', ParseIntPipe) rating?: number) {
+  findAll(@Query('rating') rating?: string) {
     return this.reviewsService.findAll(rating);
   }
 
@@ -140,5 +140,16 @@ export class ReviewsController {
   remove(@Param('id') id: string) {
     // Note: In a real application, you would get currentUserId from JWT token
     return this.reviewsService.remove(id);
+  }
+
+  @Delete('cleanup/orphaned')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Clean up reviews without service relations' })
+  @ApiResponse({
+    status: 200,
+    description: 'Orphaned reviews cleaned up successfully.',
+  })
+  cleanupOrphanedReviews() {
+    return this.reviewsService.cleanupReviewsWithoutService();
   }
 }

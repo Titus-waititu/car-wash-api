@@ -12,7 +12,7 @@ import {
   Max,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { UserRole } from 'src/types';
+import { ServiceProviderStatus, UserRole } from 'src/types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -103,8 +103,9 @@ export class CreateUserDto {
   })
   @IsString()
   @IsOptional()
+  @IsEnum(ServiceProviderStatus,{ message: 'status must be one of the predefined service provider statuses.' })
   @MaxLength(100)
-  state?: string;
+  status?: ServiceProviderStatus;
 
   @ApiPropertyOptional({
     description: 'Postal code',

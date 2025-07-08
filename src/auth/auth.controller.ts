@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -60,33 +59,36 @@ export class AuthController {
   }
 
   // Callback after Google login
-  @Public()
-  @Get('google/callback')
-  @UseGuards(GoogleOauthGuard)
-  async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    const user = req.user;
-    if (!user) {
-      throw new UnauthorizedException('Google authentication failed');
-    }
-
-    const result = await this.authService.googleAuthRedirect(user);
-    const { id, email, role } = user;
-    const { accessToken, refreshToken } = result.tokens;
-
-    // Optional: store tokens in HttpOnly cookie (recommended in prod)
-    // res.cookie('accessToken', accessToken, { httpOnly: true, secure: true })
-    // res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
-
-    // Temporary for dev: send tokens via URL
-    const frontendCallbackUrl = new URL(
-      'http://localhost:3000/auth/google/callback',
-    );
-    frontendCallbackUrl.searchParams.append('accessToken', accessToken);
-    frontendCallbackUrl.searchParams.append('refreshToken', refreshToken);
-    frontendCallbackUrl.searchParams.append('email', email);
-    frontendCallbackUrl.searchParams.append('id', id);
-    frontendCallbackUrl.searchParams.append('role', role);
-
-    return res.redirect(frontendCallbackUrl.toString());
+// Callback after Google login
+@Public()
+@Get('google/callback')
+@UseGuards(GoogleOauthGuard)
+async googleAuthRedirect(@Req() req, @Res() res: Response) {
+  const user = req.user;
+  if (!user) {
+    throw new UnauthorizedException('Google authentication failed');
   }
+
+  const result = await this.authService.googleAuthRedirect(user);
+  const { accessToken, refreshToken } = result.tokens;
+
+  // Store tokens in HttpOnly cookies
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: true, // use true in production (requires HTTPS)
+    sameSite: 'lax',
+    maxAge: 1000 * 60 * 60 * 1, // 1 hour
+  });
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  });
+
+  // Redirect safely to the frontend
+  return res.redirect('http://localhost:3000/auth/google/callback');
+}
+
 }

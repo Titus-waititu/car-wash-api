@@ -73,11 +73,13 @@ Content-Type: {{contentType}}
   "price": 25.00,
   "description": "Basic exterior car wash with soap and rinse",
   "duration_minutes": 30,
+  "is_mobile_service":true,
   "userId": "d7f74df6-caee-40fc-bc5b-3887a85636a5"
 }
 
 ### Get all services
 GET {{baseUrl}}/services
+
 
 ### Search services
 GET {{baseUrl}}/services?search=wash
@@ -221,9 +223,10 @@ POST {{baseUrl}}/reviews
 Content-Type: {{contentType}}
 
 {
-  "rating": 5,
-  "comment": "Excellent service! Very satisfied with the car wash.",
-  "userId": 1
+  "rating": 3,
+  "comment": "Average service, nothing special.",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527",
+  "serviceId":"3918f3f8-529d-4522-9e81-87d37f9c7256"
 }
 
 ### Get all reviews
@@ -234,6 +237,9 @@ GET {{baseUrl}}/reviews?rating=5
 
 ### Get review statistics
 GET {{baseUrl}}/reviews/stats
+
+### Clean up orphaned reviews (reviews without service relations)
+DELETE {{baseUrl}}/reviews/cleanup/orphaned
 
 ### Get average rating
 GET {{baseUrl}}/reviews/average-rating

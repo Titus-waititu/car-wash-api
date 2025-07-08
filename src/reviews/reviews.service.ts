@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { Service } from 'src/services/entities/service.entity';
 
 @Injectable()
 export class ReviewsService {
@@ -17,9 +18,13 @@ export class ReviewsService {
     private reviewRepository: Repository<Review>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Service)
+    private serviceRepository: Repository<Service>,
   ) {}
 
   async create(createReviewDto: CreateReviewDto): Promise<Review> {
+    console.log('Creating review with data:', createReviewDto);
+
     // Validate user exists
     const user = await this.userRepository.findOne({
       where: { id: createReviewDto.userId },
@@ -30,33 +35,79 @@ export class ReviewsService {
         `User with ID ${createReviewDto.userId} not found`,
       );
     }
+    console.log('User found:', user.id);
+
+    // Validate service exists
+    const service = await this.serviceRepository.findOne({
+      where: { id: createReviewDto.serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException(
+        `Service with ID ${createReviewDto.serviceId} not found`,
+      );
+    }
+    console.log('Service found:', service.id);
 
     const newReview = this.reviewRepository.create({
       rating: createReviewDto.rating,
       comment: createReviewDto.comment,
       user,
+      service,
     });
+    const savedReview = await this.reviewRepository.save(newReview);
+    console.log('Review saved:', savedReview.id);
 
-    return await this.reviewRepository.save(newReview);
+    // Return the saved review with relations
+    const foundReview = await this.reviewRepository.findOne({
+      where: { id: savedReview.id },
+      relations: ['user', 'service'],
+    });
+    if (!foundReview) {
+      throw new NotFoundException(`Review with ID ${savedReview.id} not found`);
+    }
+    return foundReview;
   }
 
-  async findAll(rating?: number): Promise<Review[]> {
-    const queryBuilder = this.reviewRepository
-      .createQueryBuilder('review')
-      .leftJoinAndSelect('review.user', 'user')
-      .orderBy('review.created_at', 'DESC');
+  async findAll(rating?: string): Promise<Review[] | undefined> {
+    try {
+      console.log('Fetching reviews with rating filter:', rating);
 
-    if (rating) {
-      queryBuilder.where('review.rating = :rating', { rating });
+      if (rating) {
+        const queryBuilder = this.reviewRepository
+          .createQueryBuilder('review')
+          .leftJoinAndSelect('review.user', 'user')
+          .leftJoinAndSelect('review.service', 'service')
+          .where('review.rating = :rating', { rating })
+          .orderBy('review.created_at', 'DESC');
+
+        const results = await queryBuilder.getMany();
+        console.log('Found reviews with rating filter:', results.length);
+        return results;
+      }
+
+      const results = await this.reviewRepository.find({
+        relations: ['user', 'service'],
+        order: { created_at: 'DESC' },
+      });
+
+      console.log('Found reviews without filter:', results.length);
+      console.log(
+        'Sample review service status:',
+        results[0]?.service ? 'Has service' : 'No service',
+      );
+
+      return results;
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      throw new Error('Fetch failed: ' + error.message);
     }
-
-    return await queryBuilder.getMany();
   }
 
   async findOne(id: string): Promise<Review> {
     const review = await this.reviewRepository.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user', 'service'],
     });
 
     if (!review) {
@@ -102,7 +153,7 @@ export class ReviewsService {
   async findByUser(userId: string): Promise<Review[]> {
     return await this.reviewRepository.find({
       where: { user: { id: userId } },
-      relations: ['user'],
+      relations: ['user', 'service'],
       order: { created_at: 'DESC' },
     });
   }
@@ -158,7 +209,7 @@ export class ReviewsService {
   async findTopReviews(limit: number = 10): Promise<Review[]> {
     return await this.reviewRepository.find({
       where: { rating: 5 },
-      relations: ['user'],
+      relations: ['user', 'service'],
       order: { created_at: 'DESC' },
       take: limit,
     });
@@ -166,9 +217,22 @@ export class ReviewsService {
 
   async findRecentReviews(limit: number = 10): Promise<Review[]> {
     return await this.reviewRepository.find({
-      relations: ['user'],
+      relations: ['user', 'service'],
       order: { created_at: 'DESC' },
       take: limit,
     });
+  }
+
+  // Helper method to clean up reviews without service relations
+  async cleanupReviewsWithoutService(): Promise<{ deleted: number }> {
+    const reviewsWithoutService = await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.service', 'service')
+      .where('review.service IS NULL')
+      .getMany();
+
+    await this.reviewRepository.remove(reviewsWithoutService);
+
+    return { deleted: reviewsWithoutService.length };
   }
 }

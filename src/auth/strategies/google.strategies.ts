@@ -55,6 +55,5 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         provider: 'google',
 
     });
-    console.log(user)
   }
 }

@@ -1,4 +1,5 @@
 import { Booking } from 'src/bookings/entities/booking.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -91,4 +92,10 @@ export class Service {
   @OneToMany(() => Booking, (booking) => booking.service)
   @JoinColumn()
   bookings: Relation<Booking[]>;
+
+  @OneToMany(() => Review, (review) => review.service, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  reviews: Relation<Review[]>;
 }

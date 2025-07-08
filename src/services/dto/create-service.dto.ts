@@ -3,6 +3,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
@@ -25,4 +26,7 @@ export class CreateServiceDto {
 
   @IsNotEmpty()
   userId: string;
+  
+  @IsOptional()
+  is_mobile_service:boolean
 }

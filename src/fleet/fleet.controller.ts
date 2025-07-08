@@ -12,15 +12,18 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { FleetService } from './fleet.service';
 import { CreateFleetDto } from './dto/create-fleet.dto';
 import { UpdateFleetDto } from './dto/update-fleet.dto';
-import { VehicleStatus } from './entities/fleet.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { VehicleStatus } from 'src/types';
 
 @ApiTags('fleet')
 @Controller('fleet')
+@Public()
 export class FleetController {
   constructor(private readonly fleetService: FleetService) {}
 
@@ -155,54 +158,54 @@ export class FleetController {
     return this.fleetService.remove(id);
   }
 
-  @Patch(':id/location')
-  @ApiOperation({ summary: 'Update vehicle real-time location' })
-  @ApiResponse({
-    status: 200,
-    description: 'Vehicle location updated successfully.',
-  })
-  updateVehicleLocation(
-    @Param('id') id: string,
-    @Body() locationData: { latitude: number; longitude: number },
-  ) {
-    return this.fleetService.updateVehicleLocation(
-      id,
-      locationData.latitude,
-      locationData.longitude,
-    );
-  }
+  // @Patch(':id/location')
+  // @ApiOperation({ summary: 'Update vehicle real-time location' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Vehicle location updated successfully.',
+  // })
+  // updateVehicleLocation(
+  //   @Param('id') id: string,
+  //   @Body() locationData: { latitude: number; longitude: number },
+  // ) {
+  //   return this.fleetService.updateVehicleLocation(
+  //     id,
+  //     locationData.latitude,
+  //     locationData.longitude,
+  //   );
+  // }
 
-  @Get(':id/location')
-  @ApiOperation({ summary: 'Get vehicle current location' })
-  @ApiResponse({
-    status: 200,
-    description: 'Vehicle location retrieved successfully.',
-  })
-  getVehicleLocation(@Param('id') id: string) {
-    return this.fleetService.getVehicleLocation(id);
-  }
+  // @Get(':id/location')
+  // @ApiOperation({ summary: 'Get vehicle current location' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Vehicle location retrieved successfully.',
+  // })
+  // getVehicleLocation(@Param('id') id: string) {
+  //   return this.fleetService.getVehicleLocation(id);
+  // }
 
-  @Get('nearby')
-  @ApiOperation({ summary: 'Find nearby available vehicles' })
-  @ApiQuery({ name: 'latitude', required: true, description: 'Latitude' })
-  @ApiQuery({ name: 'longitude', required: true, description: 'Longitude' })
-  @ApiQuery({
-    name: 'radius',
-    required: false,
-    description: 'Radius in KM (default: 5)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Nearby vehicles retrieved successfully.',
-  })
-  findNearbyVehicles(
-    @Query('latitude', ParseFloatPipe) latitude: number,
-    @Query('longitude', ParseFloatPipe) longitude: number,
-    @Query('radius') radius?: string,
-  ) {
-    const radiusKm = radius ? parseFloat(radius) : 5;
-    return this.fleetService.findNearbyVehicles(latitude, longitude, radiusKm);
-  }
+  // @Get('nearby')
+  // @ApiOperation({ summary: 'Find nearby available vehicles' })
+  // @ApiQuery({ name: 'latitude', required: true, description: 'Latitude' })
+  // @ApiQuery({ name: 'longitude', required: true, description: 'Longitude' })
+  // @ApiQuery({
+  //   name: 'radius',
+  //   required: false,
+  //   description: 'Radius in KM (default: 5)',
+  // })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Nearby vehicles retrieved successfully.',
+  // })
+  // findNearbyVehicles(
+  //   @Query('latitude', ParseFloatPipe) latitude: number,
+  //   @Query('longitude', ParseFloatPipe) longitude: number,
+  //   @Query('radius') radius?: string,
+  // ) {
+  //   const radiusKm = radius ? parseFloat(radius) : 5;
+  //   return this.fleetService.findNearbyVehicles(latitude, longitude, radiusKm);
+  // }
 
   @Get('maintenance/due')
   @ApiOperation({ summary: 'Get vehicles due for maintenance' })
@@ -230,45 +233,45 @@ export class FleetController {
     );
   }
 
-  @Patch(':id/expense')
-  @ApiOperation({ summary: 'Update daily expense for vehicle' })
-  @ApiResponse({
-    status: 200,
-    description: 'Vehicle expense updated successfully.',
-  })
-  updateDailyExpense(
-    @Param('id') id: string,
-    @Body() expenseData: { expense: number },
-  ) {
-    return this.fleetService.updateDailyExpense(id, expenseData.expense);
-  }
+  // @Patch(':id/expense')
+  // @ApiOperation({ summary: 'Update daily expense for vehicle' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Vehicle expense updated successfully.',
+  // })
+  // updateDailyExpense(
+  //   @Param('id') id: string,
+  //   @Body() expenseData: { expense: number },
+  // ) {
+  //   return this.fleetService.updateDailyExpense(id, expenseData.expense);
+  // }
 
-  @Get('expense/report')
-  @ApiOperation({ summary: 'Get expense report for date range' })
-  @ApiQuery({ name: 'userId', required: true, description: 'User ID' })
-  @ApiQuery({
-    name: 'startDate',
-    required: true,
-    description: 'Start date (YYYY-MM-DD)',
-  })
-  @ApiQuery({
-    name: 'endDate',
-    required: true,
-    description: 'End date (YYYY-MM-DD)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Expense report retrieved successfully.',
-  })
-  getExpenseReport(
-    @Query('userId') userId: string,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ) {
-    return this.fleetService.getExpenseReport(
-      userId,
-      new Date(startDate),
-      new Date(endDate),
-    );
-  }
+  // @Get('expense/report')
+  // @ApiOperation({ summary: 'Get expense report for date range' })
+  // @ApiQuery({ name: 'userId', required: true, description: 'User ID' })
+  // @ApiQuery({
+  //   name: 'startDate',
+  //   required: true,
+  //   description: 'Start date (YYYY-MM-DD)',
+  // })
+  // @ApiQuery({
+  //   name: 'endDate',
+  //   required: true,
+  //   description: 'End date (YYYY-MM-DD)',
+  // })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Expense report retrieved successfully.',
+  // })
+  // getExpenseReport(
+  //   @Query('userId') userId: string,
+  //   @Query('startDate') startDate: string,
+  //   @Query('endDate') endDate: string,
+  // ) {
+  //   return this.fleetService.getExpenseReport(
+  //     userId,
+  //     new Date(startDate),
+  //     new Date(endDate),
+  //   );
+  // }
 }

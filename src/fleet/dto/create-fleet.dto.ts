@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { VehicleStatus } from '../entities/fleet.entity';
+import { VehicleStatus } from 'src/types';
 
 export class CreateFleetDto {
   @IsString()

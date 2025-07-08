@@ -20,12 +20,15 @@ export class Payment {
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
   status: string;
 
+  @Column({nullable:true})
+  transaction_id:string
+
   @Column({
     type: 'enum',
     enum: PaymentMethod,
     default: PaymentMethod.CREDIT_CARD,
   })
-  method: string;
+  payment_method: string;
 
   @Column({
     type: 'timestamp',

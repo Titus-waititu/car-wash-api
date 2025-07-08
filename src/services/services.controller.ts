@@ -70,35 +70,7 @@ export class ServicesController {
     return this.servicesService.findByPriceRange(minPrice, maxPrice);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get service by ID' })
-  @ApiResponse({ status: 200, description: 'Service retrieved successfully.' })
-  @ApiResponse({ status: 404, description: 'Service not found.' })
-  findOne(@Param('id') id: string) {
-    return this.servicesService.findOne(id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update service by ID' })
-  @ApiResponse({ status: 200, description: 'Service updated successfully.' })
-  @ApiResponse({ status: 404, description: 'Service not found.' })
-  update(
-    @Param('id') id: string,
-    @Body(ValidationPipe) updateServiceDto: UpdateServiceDto,
-  ) {
-    return this.servicesService.update(id, updateServiceDto);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete service by ID' })
-  @ApiResponse({ status: 200, description: 'Service deleted successfully.' })
-  @ApiResponse({ status: 404, description: 'Service not found.' })
-  remove(@Param('id') id: string) {
-    return this.servicesService.remove(id);
-  }
-
-  @Get('compare/:category')
+    @Get('compare/:category')
   @ApiOperation({ summary: 'Compare service prices by category' })
   @ApiQuery({ name: 'latitude', required: false, description: 'User latitude' })
   @ApiQuery({
@@ -178,4 +150,34 @@ export class ServicesController {
   getServiceStats() {
     return this.servicesService.getServiceStats();
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get service by ID' })
+  @ApiResponse({ status: 200, description: 'Service retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Service not found.' })
+  findOne(@Param('id') id: string) {
+    return this.servicesService.findOne(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update service by ID' })
+  @ApiResponse({ status: 200, description: 'Service updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Service not found.' })
+  update(
+    @Param('id') id: string,
+    @Body(ValidationPipe) updateServiceDto: UpdateServiceDto,
+  ) {
+    return this.servicesService.update(id, updateServiceDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete service by ID' })
+  @ApiResponse({ status: 200, description: 'Service deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Service not found.' })
+  remove(@Param('id') id: string) {
+    return this.servicesService.remove(id);
+  }
+
+
 }

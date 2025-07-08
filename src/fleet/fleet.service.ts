@@ -6,9 +6,10 @@ import {
 import { CreateFleetDto } from './dto/create-fleet.dto';
 import { UpdateFleetDto } from './dto/update-fleet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Fleet, VehicleStatus } from './entities/fleet.entity';
+import { Fleet } from './entities/fleet.entity';
 import { ILike, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { VehicleStatus } from 'src/types';
 
 @Injectable()
 export class FleetService {
@@ -20,7 +21,6 @@ export class FleetService {
   ) {}
 
   async create(createFleetDto: CreateFleetDto): Promise<Fleet> {
-    // Check if plate number already exists
     const existingVehicle = await this.fleetRepository.findOne({
       where: { plate_number: createFleetDto.plate_number },
     });
@@ -31,7 +31,6 @@ export class FleetService {
       );
     }
 
-    // Validate user exists
     const user = await this.userRepository.findOne({
       where: { id: createFleetDto.userId },
     });
@@ -102,7 +101,6 @@ export class FleetService {
   async update(id: string, updateFleetDto: UpdateFleetDto): Promise<Fleet> {
     const vehicle = await this.findOne(id);
 
-    // Check if plate number is being updated and if it already exists
     if (
       updateFleetDto.plate_number &&
       updateFleetDto.plate_number !== vehicle.plate_number
@@ -118,7 +116,6 @@ export class FleetService {
       }
     }
 
-    // Validate user if being updated
     if (updateFleetDto.userId) {
       const user = await this.userRepository.findOne({
         where: { id: updateFleetDto.userId },
@@ -140,13 +137,12 @@ export class FleetService {
   async remove(id: string): Promise<{ message: string }> {
     const vehicle = await this.findOne(id);
 
-    // Check if vehicle can be deleted (not in service or dispatched)
     if (
-      vehicle.status === VehicleStatus.IN_SERVICE ||
-      vehicle.status === VehicleStatus.DISPATCHED
+      vehicle.status === VehicleStatus.IN_PROGRESS ||
+      vehicle.status === VehicleStatus.WAITING
     ) {
       throw new ConflictException(
-        'Cannot delete vehicle that is currently in service or dispatched',
+        'Cannot delete vehicle currently undergoing service or waiting',
       );
     }
 
@@ -170,123 +166,36 @@ export class FleetService {
 
   async getAvailableVehicles(): Promise<Fleet[]> {
     return await this.fleetRepository.find({
-      where: { status: VehicleStatus.AVAILABLE },
+      where: { status: VehicleStatus.WAITING },
       relations: ['user'],
       order: { created_at: 'DESC' },
     });
   }
 
   async getFleetStats(): Promise<any> {
-    const [total, available, inService, dispatched] = await Promise.all([
+    const [total, waiting, inProgress, completed] = await Promise.all([
       this.fleetRepository.count(),
-      this.fleetRepository.count({
-        where: { status: VehicleStatus.AVAILABLE },
-      }),
-      this.fleetRepository.count({
-        where: { status: VehicleStatus.IN_SERVICE },
-      }),
-      this.fleetRepository.count({
-        where: { status: VehicleStatus.DISPATCHED },
-      }),
+      this.fleetRepository.count({ where: { status: VehicleStatus.WAITING } }),
+      this.fleetRepository.count({ where: { status: VehicleStatus.IN_PROGRESS } }),
+      this.fleetRepository.count({ where: { status: VehicleStatus.COMPLETED } }),
     ]);
-
-    const expenseStats = await this.fleetRepository
-      .createQueryBuilder('fleet')
-      .select('SUM(fleet.daily_expense) as total_daily_expense')
-      .addSelect('SUM(fleet.monthly_expense) as total_monthly_expense')
-      .addSelect('AVG(fleet.fuel_efficiency) as avg_fuel_efficiency')
-      .getRawOne();
 
     return {
       total,
       statusBreakdown: {
-        available,
-        inService,
-        dispatched,
-      },
-      expenses: {
-        totalDailyExpense: parseFloat(expenseStats.total_daily_expense) || 0,
-        totalMonthlyExpense:
-          parseFloat(expenseStats.total_monthly_expense) || 0,
-        averageFuelEfficiency:
-          parseFloat(expenseStats.avg_fuel_efficiency) || 0,
+        waiting,
+        inProgress,
+        completed,
       },
     };
   }
 
-  // Real-time vehicle tracking
-  async updateVehicleLocation(
-    id: string,
-    latitude: number,
-    longitude: number,
-  ): Promise<Fleet> {
-    const vehicle = await this.findOne(id);
-
-    vehicle.current_latitude = latitude;
-    vehicle.current_longitude = longitude;
-    vehicle.last_location_update = new Date();
-
-    return await this.fleetRepository.save(vehicle);
-  }
-
-  async getVehicleLocation(id: string): Promise<{
-    latitude: number;
-    longitude: number;
-    lastUpdate: Date;
-  }> {
-    const vehicle = await this.findOne(id);
-
-    return {
-      latitude: vehicle.current_latitude,
-      longitude: vehicle.current_longitude,
-      lastUpdate: vehicle.last_location_update,
-    };
-  }
-
-  async findNearbyVehicles(
-    latitude: number,
-    longitude: number,
-    radiusKm: number = 5,
-  ): Promise<Fleet[]> {
-    return await this.fleetRepository
-      .createQueryBuilder('fleet')
-      .where('fleet.status = :status', { status: VehicleStatus.AVAILABLE })
-      .andWhere('fleet.current_latitude IS NOT NULL')
-      .andWhere('fleet.current_longitude IS NOT NULL')
-      .andWhere(
-        `(
-          6371 * acos(
-            cos(radians(:lat)) * cos(radians(fleet.current_latitude)) *
-            cos(radians(fleet.current_longitude) - radians(:lng)) +
-            sin(radians(:lat)) * sin(radians(fleet.current_latitude))
-          )
-        ) <= :radius`,
-        { lat: latitude, lng: longitude, radius: radiusKm },
-      )
-      .leftJoinAndSelect('fleet.user', 'user')
-      .orderBy(
-        `(
-          6371 * acos(
-            cos(radians(:lat)) * cos(radians(fleet.current_latitude)) *
-            cos(radians(fleet.current_longitude) - radians(:lng)) +
-            sin(radians(:lat)) * sin(radians(fleet.current_latitude))
-          )
-        )`,
-        'ASC',
-      )
-      .setParameters({ lat: latitude, lng: longitude })
-      .getMany();
-  }
-
-  // Maintenance scheduling
   async scheduleMaintenanceReminder(
     id: string,
     nextMaintenanceDate: Date,
   ): Promise<Fleet> {
     const vehicle = await this.findOne(id);
-
     vehicle.next_maintenance_date = nextMaintenanceDate;
-
     return await this.fleetRepository.save(vehicle);
   }
 
@@ -301,51 +210,6 @@ export class FleetService {
       .leftJoinAndSelect('fleet.user', 'user')
       .orderBy('fleet.next_maintenance_date', 'ASC')
       .getMany();
-  }
-
-  // Expense management
-  async updateDailyExpense(id: string, expense: number): Promise<Fleet> {
-    const vehicle = await this.findOne(id);
-
-    vehicle.daily_expense = expense;
-
-    return await this.fleetRepository.save(vehicle);
-  }
-
-  async getExpenseReport(
-    userId: string,
-    startDate: Date,
-    endDate: Date,
-  ): Promise<any> {
-    const vehicles = await this.fleetRepository.find({
-      where: { user: { id: userId } },
-    });
-
-    const totalExpenses = vehicles.reduce((sum, vehicle) => {
-      const days = Math.ceil(
-        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-      );
-      return sum + vehicle.daily_expense * days;
-    }, 0);
-
-    return {
-      period: { startDate, endDate },
-      totalVehicles: vehicles.length,
-      totalExpenses,
-      averageExpensePerVehicle:
-        vehicles.length > 0 ? totalExpenses / vehicles.length : 0,
-      vehicleBreakdown: vehicles.map((vehicle) => ({
-        id: vehicle.id,
-        plateNumber: vehicle.plate_number,
-        model: vehicle.model,
-        dailyExpense: vehicle.daily_expense,
-        estimatedPeriodExpense:
-          vehicle.daily_expense *
-          Math.ceil(
-            (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-          ),
-      })),
-    };
   }
 
   async findByType(type: string): Promise<Fleet[]> {

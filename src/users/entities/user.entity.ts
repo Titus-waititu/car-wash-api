@@ -2,7 +2,7 @@ import { Booking } from 'src/bookings/entities/booking.entity';
 import { Fleet } from 'src/fleet/entities/fleet.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Service } from 'src/services/entities/service.entity';
-import { UserRole } from 'src/types';
+import { ServiceProviderStatus, UserRole } from 'src/types';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -48,8 +48,8 @@ export class User {
   @Column({ nullable: true })
   city: string;
 
-  @Column({ nullable: true })
-  state: string;
+  @Column({ nullable: true, type: 'enum', enum: ServiceProviderStatus, default: ServiceProviderStatus.ONLINE })
+  status: ServiceProviderStatus;
 
   @Column({ nullable: true })
   postal_code: string;

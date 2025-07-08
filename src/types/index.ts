@@ -2,14 +2,19 @@ export enum UserRole {
   CUSTOMER = 'customer',
   VENDOR = 'vendor',
   ADMIN = 'admin',
-  FLEET_MANAGER = 'fleet_manager',
-  SUPPORT_STAFF = 'support_staff',
 }
 
 export enum PaymentStatus {
   PENDING = 'pending',
   COMPLETED = 'completed',
   FAILED = 'failed',
+}
+
+export enum ServiceProviderStatus {
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+  BUSY = 'busy',
+  UNAVAILABLE = 'unavailable',
 }
 
 export enum PaymentMethod {
@@ -26,7 +31,8 @@ export enum BookingStatus {
 }
 
 export enum VehicleStatus {
-  AVAILABLE = 'available',
-  IN_SERVICE = 'in-service',
-  DISPATCHED = 'dispatched',
+  WAITING = 'WAITING',       
+  IN_PROGRESS = 'IN_PROGRESS', 
+  COMPLETED = 'COMPLETED',   
+  CANCELLED = 'CANCELLED',  
 }
