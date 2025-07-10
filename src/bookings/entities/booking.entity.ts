@@ -1,6 +1,7 @@
 import { Payment } from 'src/payments/entities/payment.entity';
 import { Service } from 'src/services/entities/service.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Fleet } from 'src/fleet/entities/fleet.entity';
 import {
   Column,
   Entity,
@@ -27,69 +28,27 @@ export class Booking {
   booking_time: Date;
 
   @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.PENDING })
-  status: string;
+  status: BookingStatus;
 
+  // Customer-provided location for mobile service
   @Column({ nullable: true })
   address: string;
-
-  // Vehicle details for better service
-  @Column({ nullable: true })
-  vehicle_make: string;
-
-  @Column({ nullable: true })
-  vehicle_model: string;
-
-  @Column({ nullable: true })
-  vehicle_year: number;
-
-  @Column({ nullable: true })
-  license_plate: string;
-
-  @Column({ nullable: true })
-  vehicle_color: string;
-
-  // Location details
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  service_latitude: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  service_longitude: number;
-
-  // Bulk booking support
-  @Column({ nullable: true })
-  bulk_booking_id: string;
-
-  @Column({ default: false })
-  is_bulk_booking: boolean;
-
-  @Column({ default: 1 })
-  vehicle_count: number;
-
-  // Service tracking
-  @Column({ nullable: true })
-  estimated_start_time: Date;
-
-  @Column({ nullable: true })
-  actual_start_time: Date;
-
-  @Column({ nullable: true })
-  completion_time: Date;
 
   @Column({ type: 'text', nullable: true })
   special_instructions: string;
 
+  // Optional internal notes for service providers
   @Column({ type: 'text', nullable: true })
   service_notes: string;
 
-  // Travel and pricing
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  travel_distance_km: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  travel_charge: number;
-
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   total_amount: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  actual_start_time: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  completion_time: Date;
 
   @Column({
     type: 'timestamp',
@@ -105,6 +64,7 @@ export class Booking {
   })
   updated_at: Date;
 
+  // Associations
   @ManyToOne(() => User, (user) => user.bookings, {
     onDelete: 'CASCADE',
     nullable: false,
@@ -119,9 +79,16 @@ export class Booking {
   @JoinColumn()
   service: Relation<Service>;
 
+  @ManyToOne(() => Fleet, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn()
+  vehicle: Relation<Fleet>;
+  
   @OneToOne(() => Payment, (payment) => payment.booking, {
-    onDelete: 'CASCADE',
-    nullable: false,
+    onDelete: 'SET NULL',
+    nullable: true,
   })
   payment: Relation<Payment>;
 }

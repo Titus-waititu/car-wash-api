@@ -195,7 +195,7 @@ export class FleetService {
     nextMaintenanceDate: Date,
   ): Promise<Fleet> {
     const vehicle = await this.findOne(id);
-    vehicle.next_maintenance_date = nextMaintenanceDate;
+    vehicle.next_service_due = nextMaintenanceDate;
     return await this.fleetRepository.save(vehicle);
   }
 

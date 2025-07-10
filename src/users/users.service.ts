@@ -183,7 +183,7 @@ export class UsersService {
           city,
           is_active: true,
         },
-        order: { average_rating: 'DESC' },
+        
       })
       .then((users) => users.map((user) => this.sanitizeUser(user)))
       .catch((error) => {
@@ -215,29 +215,5 @@ export class UsersService {
     };
   }
 
-  async updateVendorRating(
-    vendorId: string,
-    newRating: number,
-  ): Promise<Partial<User>> {
-    const vendor = await this.usersRepository.findOne({
-      where: { id: vendorId, role: UserRole.VENDOR },
-    });
-
-    if (!vendor) {
-      throw new Error('Vendor not found');
-    }
-
-    // Calculate new average rating
-    const totalRatings = vendor.total_reviews;
-    const currentTotal = vendor.average_rating * totalRatings;
-    const newTotal = currentTotal + newRating;
-    const newAverage = newTotal / (totalRatings + 1);
-
-    await this.usersRepository.update(vendorId, {
-      average_rating: Math.round(newAverage * 100) / 100,
-      total_reviews: totalRatings + 1,
-    });
-
-    return this.findOne(vendorId);
-  }
+ 
 }

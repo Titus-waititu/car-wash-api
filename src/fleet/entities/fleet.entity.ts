@@ -14,6 +14,7 @@ export class Fleet {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // Basic vehicle identification
   @Column()
   plate_number: string;
 
@@ -21,26 +22,11 @@ export class Fleet {
   model: string;
 
   @Column()
-  type: string;
-
-  @Column({
-    type: 'enum',
-    enum: VehicleStatus,
-    default: VehicleStatus.WAITING,
-  })
-  status: string;
-
-  // Real-time tracking fields
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  current_latitude: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  current_longitude: number;
+  type: string; // e.g., Sedan, SUV, Truck
 
   @Column({ nullable: true })
-  last_location_update: Date;
+  color: string;
 
-  // Vehicle details
   @Column({ nullable: true })
   make: string;
 
@@ -48,50 +34,27 @@ export class Fleet {
   year: number;
 
   @Column({ nullable: true })
-  color: string;
-
-  @Column({ nullable: true })
   vin_number: string;
 
-  // Maintenance and service tracking
-  @Column({ nullable: true })
-  last_maintenance_date: Date;
+  // Wash/service status tracking
+  @Column({
+    type: 'enum',
+    enum: VehicleStatus,
+    default: VehicleStatus.WAITING,
+  })
+  status: VehicleStatus;
 
   @Column({ nullable: true })
-  next_maintenance_date: Date;
+  last_service_date: Date;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  total_mileage: number;
+  @Column({ nullable: true })
+  next_service_due: Date;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  fuel_capacity: number;
-
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
-  fuel_efficiency: number;
-
-  // Equipment and capacity
-  @Column({ type: 'json', nullable: true })
-  equipment_list: string[];
-
-  @Column({ default: 1 })
-  service_capacity: number;
-
+  // Assignment (e.g., bay number or wash queue)
   @Column({ nullable: true })
   current_assignment: string;
 
-  @Column({ nullable: true })
-  driver_name: string;
-
-  @Column({ nullable: true })
-  driver_phone: string;
-
-  // Expense tracking
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  daily_expense: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  monthly_expense: number;
-
+  // Timestamps
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
@@ -102,6 +65,7 @@ export class Fleet {
   })
   updated_at: Date;
 
+  // Relationship: Who owns the vehicle (usually a customer)
   @ManyToOne(() => User, (user) => user.fleetVehicles, {
     onDelete: 'CASCADE',
     nullable: false,

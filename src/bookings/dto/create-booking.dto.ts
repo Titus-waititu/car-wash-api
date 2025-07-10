@@ -8,7 +8,6 @@ import {
 } from 'class-validator';
 import { BookingStatus } from '../entities/booking.entity';
 
-
 export class CreateBookingDto {
   @IsDateString()
   @IsNotEmpty()
@@ -22,12 +21,23 @@ export class CreateBookingDto {
   @IsOptional()
   address?: string;
 
+  @IsString()
+  @IsOptional()
+  special_instructions?: string;
+
+  @IsNumber()
+  @IsOptional()
+  total_amount?: number;
+
   @IsNotEmpty()
+  @IsString()
   userId: string;
 
   @IsNotEmpty()
+  @IsString()
   serviceId: string;
 
-  // @IsNotEmpty()
-  // paymentId: string;
+  @IsOptional()
+  @IsString()
+  vehicleId?: string;
 }

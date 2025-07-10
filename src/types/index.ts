@@ -17,6 +17,14 @@ export enum ServiceProviderStatus {
   UNAVAILABLE = 'unavailable',
 }
 
+export enum ServiceCategory {
+  ALL = 'all',
+  Exterior = 'exterior',
+  Interior = 'interior',
+  Detailing = 'detail',
+  Protection = 'protection',
+}
+
 export enum PaymentMethod {
   MPESA = 'MPesa',
   CREDIT_CARD = 'Card',

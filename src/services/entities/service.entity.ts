@@ -1,5 +1,6 @@
 import { Booking } from 'src/bookings/entities/booking.entity';
 import { Review } from 'src/reviews/entities/review.entity';
+import { ServiceCategory } from 'src/types';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -10,6 +11,10 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
+
+
+
+
 
 @Entity()
 export class Service {
@@ -28,9 +33,12 @@ export class Service {
   @Column()
   duration_minutes: number;
 
-  // Service categorization and features
-  @Column({ default: 'general' })
-  category: string;
+ @Column({
+    type: 'enum',
+    enum: ServiceCategory,
+    default: ServiceCategory.Exterior, 
+  })
+  category: ServiceCategory
 
   @Column({ default: true })
   is_active: boolean;

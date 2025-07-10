@@ -7,6 +7,7 @@ import { ServicesModule } from './services/services.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { FleetModule } from './fleet/fleet.module';
 import { PaymentsModule } from './payments/payments.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory } from 'cacheable';
@@ -17,7 +18,16 @@ import { AtGuard } from './auth/guards/at.guard';
 import { LoggerMiddleware } from 'logger.middleware';
 
 @Module({
-  imports: [UsersModule, DatabaseModule, AuthModule, BookingsModule, ServicesModule, ReviewsModule, FleetModule, PaymentsModule,
+  imports: [
+    UsersModule,
+    DatabaseModule,
+    AuthModule,
+    BookingsModule,
+    ServicesModule,
+    ReviewsModule,
+    FleetModule,
+    PaymentsModule,
+    NotificationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -30,15 +40,15 @@ import { LoggerMiddleware } from 'logger.middleware';
         return {
           ttl: configService.get<number>('CACHE_TTL', 60000), // Default TTL of 60 seconds
           stores: [
-            new Keyv ({
-              store:new CacheableMemory({ttl:30000,lruSize:5000,}),
+            new Keyv({
+              store: new CacheableMemory({ ttl: 30000, lruSize: 5000 }),
             }),
             createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-          ]
-        }
-      }
+          ],
+        };
+      },
     }),
-        ThrottlerModule.forRootAsync({
+    ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
@@ -53,7 +63,7 @@ import { LoggerMiddleware } from 'logger.middleware';
         },
       ],
     }),
-       CacheModule.registerAsync({
+    CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       isGlobal: true,
@@ -71,12 +81,11 @@ import { LoggerMiddleware } from 'logger.middleware';
         };
       },
     }),
-
   ],
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AtGuard, 
+      useClass: AtGuard,
     },
     {
       provide: APP_INTERCEPTOR,
@@ -86,8 +95,7 @@ import { LoggerMiddleware } from 'logger.middleware';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
-  ]
-
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

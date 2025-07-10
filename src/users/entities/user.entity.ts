@@ -2,6 +2,7 @@ import { Booking } from 'src/bookings/entities/booking.entity';
 import { Fleet } from 'src/fleet/entities/fleet.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Service } from 'src/services/entities/service.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 import { ServiceProviderStatus, UserRole } from 'src/types';
 import {
   Entity,
@@ -27,10 +28,10 @@ export class User {
   email: string;
 
   @Column({ nullable: true })
-   phone_number: string;
+  phone_number: string;
 
-     @Column({ nullable: true })
-     profilePicture: string;
+  @Column({ nullable: true })
+  profilePicture: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
@@ -48,7 +49,12 @@ export class User {
   @Column({ nullable: true })
   city: string;
 
-  @Column({ nullable: true, type: 'enum', enum: ServiceProviderStatus, default: ServiceProviderStatus.ONLINE })
+  @Column({
+    nullable: true,
+    type: 'enum',
+    enum: ServiceProviderStatus,
+    default: ServiceProviderStatus.ONLINE,
+  })
   status: ServiceProviderStatus;
 
   @Column({ nullable: true })
@@ -72,12 +78,6 @@ export class User {
 
   @Column({ default: true })
   is_active: boolean;
-
-  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 })
-  average_rating: number;
-
-  @Column({ default: 0 })
-  total_reviews: number;
 
   @Column({ type: 'text', nullable: true, default: null })
   hashedRefreshToken: string | null;
@@ -107,4 +107,7 @@ export class User {
 
   @OneToMany(() => Fleet, (fleet) => fleet.user)
   fleetVehicles: Fleet[];
+
+  @OneToMany(() => Notification, (notification) => notification.recipient)
+  notifications: Notification[];
 }

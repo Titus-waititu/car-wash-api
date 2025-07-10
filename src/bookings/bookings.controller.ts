@@ -144,56 +144,6 @@ export class BookingsController {
     return this.bookingsService.remove(id);
   }
 
-  @Post('bulk')
-  @ApiOperation({ summary: 'Create bulk booking for multiple vehicles' })
-  @ApiResponse({
-    status: 201,
-    description: 'Bulk booking created successfully.',
-  })
-  createBulkBooking(@Body() bulkBookingData: any) {
-    const bulkBookingId = `BULK_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-    return this.bookingsService.createBulkBooking(
-      bulkBookingData.bookings,
-      bulkBookingId,
-    );
-  }
-
-  @Get('bulk/:bulkId')
-  @ApiOperation({ summary: 'Get bookings by bulk booking ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Bulk bookings retrieved successfully.',
-  })
-  findBulkBookings(@Param('bulkId') bulkId: string) {
-    return this.bookingsService.findBulkBookings(bulkId);
-  }
-
-  @Get('bulk-stats')
-  @ApiOperation({ summary: 'Get bulk booking statistics' })
-  @ApiResponse({
-    status: 200,
-    description: 'Bulk booking stats retrieved successfully.',
-  })
-  getBulkBookingStats() {
-    return this.bookingsService.getBulkBookingStats();
-  }
-
-  @Patch(':id/location')
-  @ApiOperation({ summary: 'Update booking service location' })
-  @ApiResponse({
-    status: 200,
-    description: 'Booking location updated successfully.',
-  })
-  updateBookingLocation(
-    @Param('id') id: string,
-    @Body() locationData: { latitude: number; longitude: number },
-  ) {
-    return this.bookingsService.updateBookingLocation(
-      id,
-      locationData.latitude,
-      locationData.longitude,
-    );
-  }
 
   @Patch(':id/start')
   @ApiOperation({ summary: 'Start service for booking' })

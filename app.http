@@ -14,8 +14,8 @@ POST {{baseUrl}}/users
 Content-Type: {{contentType}}
 
 {
-  "username": "John Doe",
-  "email": "holy@duck.com",
+  "username": "user",
+  "email": "user@duck.com",
   "password": "12345678",
   "phone_number": "1234567890"
 }
@@ -31,17 +31,17 @@ Content-Type: {{contentType}}
   "phone_number": "1234567890"
 }
 ### Get user by ID
-GET {{baseUrl}}/users/1
+GET {{baseUrl}}/users
 
 ### Search users
 GET {{baseUrl}}/users?search=john
 
 ### Update user
-PATCH {{baseUrl}}/users/1
+PATCH {{baseUrl}}/users/f1d7893d-f990-41c4-832a-711680e9a3ed
 Content-Type: {{contentType}}
 
 {
-  "username": "John Updated"
+  "username": "John Travolta"
 }
 
 ### Delete user
@@ -164,10 +164,10 @@ POST {{baseUrl}}/fleet
 Content-Type: {{contentType}}
 
 {
-  "plate_number": "ABC-123",
-  "model": "Toyota Camry",
-  "type": "Service Vehicle",
-  "userId": 1
+    "plate_number": "KAV-784",
+    "model": "Nissan X-Trail",
+    "type": "Deluxe",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
 }
 
 ### Get all fleet vehicles
@@ -198,11 +198,11 @@ GET {{baseUrl}}/fleet/plate/ABC-123
 GET {{baseUrl}}/fleet/1
 
 ### Update fleet vehicle
-PATCH {{baseUrl}}/fleet/1
+PATCH {{baseUrl}}/fleet/dcd8b2a6-6586-4f47-ac8d-5046f7a96824
 Content-Type: {{contentType}}
 
 {
-  "status": "in-service"
+  "next_service_due": "2025-08-01"
 }
 
 ### Update vehicle status
@@ -267,6 +267,117 @@ Content-Type: {{contentType}}
 
 ### Delete review
 DELETE {{baseUrl}}/reviews/1
+
+### ========== NOTIFICATIONS ==========
+
+### Create a new notification
+POST {{baseUrl}}/notifications
+Content-Type: {{contentType}}
+
+{
+  "title": "Booking Confirmed",
+  "message": "Your car wash booking has been confirmed for tomorrow at 10:00 AM",
+  "type": "booking_confirmed",
+  "priority": "high",
+  "channels": ["in_app", "push"],
+  "recipientId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527",
+  "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f"
+}
+
+### Get all notifications
+GET {{baseUrl}}/bookings
+
+### Get notifications by recipient
+GET {{baseUrl}}/notifications?recipientId=bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
+
+### Get unread notifications
+GET {{baseUrl}}/notifications?isRead=false
+
+### Get notifications by type
+GET {{baseUrl}}/notifications?type=booking_confirmed
+
+### Get notifications with pagination
+GET {{baseUrl}}/notifications?limit=10&offset=0
+
+### Get unread count for user
+GET {{baseUrl}}/notifications/user/bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527/unread-count
+
+### Get notification stats for user
+GET {{baseUrl}}/notifications/user/bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527/stats
+
+### Get notification by ID
+GET {{baseUrl}}/notifications/1
+
+### Mark notification as read
+PATCH {{baseUrl}}/notifications/1/mark-read
+Content-Type: {{contentType}}
+
+{
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+### Mark multiple notifications as read
+PATCH {{baseUrl}}/notifications/mark-multiple-read
+Content-Type: {{contentType}}
+
+{
+  "notificationIds": ["1", "2", "3"],
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+### Delete notification
+DELETE {{baseUrl}}/notifications/1
+Content-Type: {{contentType}}
+
+{
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+### Create booking notification
+POST {{baseUrl}}/notifications/booking/f7602386-4a35-41f9-8c63-d65b670ca8f2
+Content-Type: {{contentType}}
+
+{
+  "type": "booking_confirmed",
+  "customMessage": "Your premium car wash is confirmed!"
+}
+
+### Create fleet notification
+POST {{baseUrl}}/notifications/fleet/1
+Content-Type: {{contentType}}
+
+{
+  "type": "vehicle_dispatched",
+  "recipientId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527",
+  "customMessage": "Your service vehicle is on the way!"
+}
+
+### Create promotional notification
+POST {{baseUrl}}/notifications/promotional
+Content-Type: {{contentType}}
+
+{
+  "recipientIds": ["bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"],
+  "title": "Special Discount!",
+  "message": "Get 20% off your next car wash service. Book now!",
+  "serviceId": "3918f3f8-529d-4522-9e81-87d37f9c7256",
+  "imageUrl": "https://example.com/promotion.jpg"
+}
+
+### Create bulk notifications
+POST {{baseUrl}}/notifications/bulk
+Content-Type: {{contentType}}
+
+{
+  "recipientIds": ["bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"],
+  "notificationData": {
+    "title": "System Maintenance",
+    "message": "The app will be under maintenance from 2 AM to 4 AM tomorrow",
+    "type": "general",
+    "priority": "medium",
+    "channels": ["in_app", "email"]
+  }
+}
 
 ### ========== API DOCUMENTATION ==========
 

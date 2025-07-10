@@ -3,14 +3,15 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between } from 'typeorm';
+import { Booking, BookingStatus } from './entities/booking.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Booking, BookingStatus } from './entities/booking.entity';
-import { Repository, Between } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Service } from 'src/services/entities/service.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
+import { Fleet } from 'src/fleet/entities/fleet.entity';
 
 @Injectable()
 export class BookingsService {
@@ -23,55 +24,49 @@ export class BookingsService {
     private serviceRepository: Repository<Service>,
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
+    @InjectRepository(Fleet)
+    private fleetRepository: Repository<Fleet>,
   ) {}
 
   async create(createBookingDto: CreateBookingDto): Promise<Booking> {
-    // Validate user exists
-    const user = await this.userRepository.findOne({
-      where: { id: createBookingDto.userId },
-    });
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createBookingDto.userId} not found`,
-      );
-    }
+    const { userId, serviceId, vehicleId } = createBookingDto;
 
-    // Validate service exists
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+
     const service = await this.serviceRepository.findOne({
-      where: { id: createBookingDto.serviceId },
+      where: { id: serviceId },
     });
-    if (!service) {
-      throw new NotFoundException(
-        `Service with ID ${createBookingDto.serviceId} not found`,
-      );
+    if (!service)
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+
+    let vehicle: Fleet | null = null;
+    if (vehicleId) {
+      vehicle = await this.fleetRepository.findOne({
+        where: { id: vehicleId },
+      });
+      if (!vehicle) {
+        throw new NotFoundException(`Vehicle with ID ${vehicleId} not found`);
+      }
     }
 
-    // Validate payment exists
-    // const payment = await this.paymentRepository.findOne({
-    //   where: { id: createBookingDto.paymentId },
-    // });
-    // if (!payment) {
-    //   throw new NotFoundException(
-    //     `Payment with ID ${createBookingDto.paymentId} not found`,
-    //   );
-    // }
-
-    // Check if booking time is in the future
     const bookingTime = new Date(createBookingDto.booking_time);
     if (bookingTime <= new Date()) {
       throw new BadRequestException('Booking time must be in the future');
     }
 
-    const newBooking = this.bookingRepository.create({
+    const booking = this.bookingRepository.create({
       booking_time: bookingTime,
       status: createBookingDto.status || BookingStatus.PENDING,
       address: createBookingDto.address,
+      special_instructions: createBookingDto.special_instructions,
+      total_amount: createBookingDto.total_amount,
       user,
       service,
-      // payment,
+      vehicle: vehicle ?? undefined,
     });
 
-    return await this.bookingRepository.save(newBooking);
+    return await this.bookingRepository.save(booking);
   }
 
   async findAll(status?: BookingStatus): Promise<Booking[]> {
@@ -80,6 +75,7 @@ export class BookingsService {
       .leftJoinAndSelect('booking.user', 'user')
       .leftJoinAndSelect('booking.service', 'service')
       .leftJoinAndSelect('booking.payment', 'payment')
+      .leftJoinAndSelect('booking.vehicle', 'vehicle')
       .orderBy('booking.booking_time', 'DESC');
 
     if (status) {
@@ -91,13 +87,12 @@ export class BookingsService {
 
   async findOne(id: string): Promise<Booking> {
     const booking = await this.bookingRepository.findOne({
-      where: { id: id },
-      relations: ['user', 'service', 'payment'],
+      where: { id },
+      relations: ['user', 'service', 'payment', 'vehicle'],
     });
 
-    if (!booking) {
+    if (!booking)
       throw new NotFoundException(`Booking with ID ${id} not found`);
-    }
 
     return booking;
   }
@@ -108,22 +103,29 @@ export class BookingsService {
   ): Promise<Booking> {
     const booking = await this.findOne(id);
 
-    // Validate status transition
     if (updateBookingDto.status) {
       this.validateStatusTransition(booking.status, updateBookingDto.status);
     }
 
-    // Validate booking time if being updated
     if (updateBookingDto.booking_time) {
-      const newBookingTime = new Date(updateBookingDto.booking_time);
-      if (
-        newBookingTime <= new Date() &&
-        booking.status === BookingStatus.PENDING
-      ) {
+      const newTime = new Date(updateBookingDto.booking_time);
+      if (newTime <= new Date() && booking.status === BookingStatus.PENDING) {
         throw new BadRequestException(
-          'Cannot update booking time to past date for pending bookings',
+          'Cannot update booking time to past for pending bookings',
         );
       }
+    }
+
+    if (updateBookingDto.vehicleId) {
+      const fleet = await this.fleetRepository.findOne({
+        where: { id: updateBookingDto.vehicleId },
+      });
+      if (!fleet) {
+        throw new NotFoundException(
+          `Vehicle with ID ${updateBookingDto.vehicleId} not found`,
+        );
+      }
+      booking.vehicle = fleet;
     }
 
     Object.assign(booking, updateBookingDto);
@@ -133,13 +135,13 @@ export class BookingsService {
   async remove(id: string): Promise<{ message: string }> {
     const booking = await this.findOne(id);
 
-    // Only allow deletion of pending or cancelled bookings
     if (
-      booking.status === BookingStatus.COMPLETED ||
-      booking.status === BookingStatus.CONFIRMED
+      [BookingStatus.CONFIRMED, BookingStatus.COMPLETED].includes(
+        booking.status,
+      )
     ) {
       throw new BadRequestException(
-        'Cannot delete completed or confirmed bookings',
+        'Cannot delete confirmed or completed bookings',
       );
     }
 
@@ -148,27 +150,25 @@ export class BookingsService {
   }
 
   async findByUser(userId: string): Promise<Booking[]> {
-    return await this.bookingRepository.find({
+    return this.bookingRepository.find({
       where: { user: { id: userId } },
-      relations: ['user', 'service', 'payment'],
+      relations: ['user', 'service', 'payment', 'vehicle'],
       order: { booking_time: 'DESC' },
     });
   }
 
   async findByService(serviceId: string): Promise<Booking[]> {
-    return await this.bookingRepository.find({
+    return this.bookingRepository.find({
       where: { service: { id: serviceId } },
-      relations: ['user', 'service', 'payment'],
+      relations: ['user', 'service', 'payment', 'vehicle'],
       order: { booking_time: 'DESC' },
     });
   }
 
-  async findByDateRange(startDate: Date, endDate: Date): Promise<Booking[]> {
-    return await this.bookingRepository.find({
-      where: {
-        booking_time: Between(startDate, endDate),
-      },
-      relations: ['user', 'service', 'payment'],
+  async findByDateRange(start: Date, end: Date): Promise<Booking[]> {
+    return this.bookingRepository.find({
+      where: { booking_time: Between(start, end) },
+      relations: ['user', 'service', 'payment', 'vehicle'],
       order: { booking_time: 'ASC' },
     });
   }
@@ -184,11 +184,41 @@ export class BookingsService {
     return await this.bookingRepository.save(booking);
   }
 
+  async startService(id: string): Promise<Booking> {
+    const booking = await this.findOne(id);
+
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new BadRequestException('Only pending bookings can be started');
+    }
+
+    booking.actual_start_time = new Date();
+    booking.status = BookingStatus.CONFIRMED;
+
+    return await this.bookingRepository.save(booking);
+  }
+
+  async completeService(id: string, serviceNotes?: string): Promise<Booking> {
+    const booking = await this.findOne(id);
+
+    if (booking.status !== BookingStatus.CONFIRMED) {
+      throw new BadRequestException('Only confirmed bookings can be completed');
+    }
+
+    booking.completion_time = new Date();
+    booking.status = BookingStatus.COMPLETED;
+
+    if (serviceNotes) {
+      booking.service_notes = serviceNotes;
+    }
+
+    return await this.bookingRepository.save(booking);
+  }
+
   private validateStatusTransition(
-    currentStatus: string,
+    currentStatus: BookingStatus,
     newStatus: BookingStatus,
-  ): void {
-    const validTransitions = {
+  ) {
+    const validTransitions: Record<BookingStatus, BookingStatus[]> = {
       [BookingStatus.PENDING]: [
         BookingStatus.CONFIRMED,
         BookingStatus.CANCELLED,
@@ -197,13 +227,13 @@ export class BookingsService {
         BookingStatus.COMPLETED,
         BookingStatus.CANCELLED,
       ],
-      [BookingStatus.COMPLETED]: [], // No transitions from completed
-      [BookingStatus.CANCELLED]: [], // No transitions from cancelled
+      [BookingStatus.COMPLETED]: [],
+      [BookingStatus.CANCELLED]: [],
     };
 
     if (!validTransitions[currentStatus]?.includes(newStatus)) {
       throw new BadRequestException(
-        `Invalid status transition from ${currentStatus} to ${newStatus}`,
+        `Invalid transition from ${currentStatus} to ${newStatus}`,
       );
     }
   }
@@ -236,108 +266,11 @@ export class BookingsService {
 
     return {
       total,
-      statusBreakdown: {
-        pending,
-        confirmed,
-        completed,
-        cancelled,
-      },
+      statusBreakdown: { pending, confirmed, completed, cancelled },
       revenue: {
         total: parseFloat(revenueStats.total_revenue) || 0,
         averageBookingValue: parseFloat(revenueStats.avg_booking_value) || 0,
       },
     };
-  }
-
-  // Bulk booking functionality
-  async createBulkBooking(
-    bookings: any[],
-    bulkBookingId: string,
-  ): Promise<Booking[]> {
-    const createdBookings: Booking[] = [];
-
-    for (const bookingData of bookings) {
-      const booking = await this.create({
-        ...bookingData,
-        is_bulk_booking: true,
-        bulk_booking_id: bulkBookingId,
-      });
-      createdBookings.push(booking);
-    }
-
-    return createdBookings;
-  }
-
-  async findBulkBookings(bulkBookingId: string): Promise<Booking[]> {
-    return await this.bookingRepository.find({
-      where: { bulk_booking_id: bulkBookingId },
-      relations: ['user', 'service', 'payment'],
-      order: { booking_time: 'ASC' },
-    });
-  }
-
-  async getBulkBookingStats(): Promise<any> {
-    const bulkBookings = await this.bookingRepository
-      .createQueryBuilder('booking')
-      .select('booking.bulk_booking_id')
-      .addSelect('COUNT(*) as vehicle_count')
-      .addSelect('SUM(booking.total_amount) as total_amount')
-      .where('booking.is_bulk_booking = :isBulk', { isBulk: true })
-      .groupBy('booking.bulk_booking_id')
-      .getRawMany();
-
-    return {
-      totalBulkBookings: bulkBookings.length,
-      totalVehiclesInBulk: bulkBookings.reduce(
-        (sum, booking) => sum + parseInt(booking.vehicle_count),
-        0,
-      ),
-      totalBulkRevenue: bulkBookings.reduce(
-        (sum, booking) => sum + parseFloat(booking.total_amount),
-        0,
-      ),
-      averageVehiclesPerBulk:
-        bulkBookings.length > 0
-          ? bulkBookings.reduce(
-              (sum, booking) => sum + parseInt(booking.vehicle_count),
-              0,
-            ) / bulkBookings.length
-          : 0,
-    };
-  }
-
-  // Real-time tracking
-  async updateBookingLocation(
-    id: string,
-    latitude: number,
-    longitude: number,
-  ): Promise<Booking> {
-    const booking = await this.findOne(id);
-
-    booking.service_latitude = latitude;
-    booking.service_longitude = longitude;
-
-    return await this.bookingRepository.save(booking);
-  }
-
-  async startService(id: string): Promise<Booking> {
-    const booking = await this.findOne(id);
-
-    booking.actual_start_time = new Date();
-    booking.status = BookingStatus.CONFIRMED;
-
-    return await this.bookingRepository.save(booking);
-  }
-
-  async completeService(id: string, serviceNotes?: string): Promise<Booking> {
-    const booking = await this.findOne(id);
-
-    booking.completion_time = new Date();
-    booking.status = BookingStatus.COMPLETED;
-    if (serviceNotes) {
-      booking.service_notes = serviceNotes;
-    }
-
-    return await this.bookingRepository.save(booking);
   }
 }

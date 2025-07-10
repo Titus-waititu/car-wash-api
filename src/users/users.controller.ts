@@ -132,17 +132,4 @@ export class UsersController {
   findByRole(@Param('role') role: string) {
     return this.usersService.findByRole(role as any);
   }
-
-  @Patch('vendors/:id/rating')
-  @ApiOperation({ summary: 'Update vendor rating' })
-  @ApiResponse({
-    status: 200,
-    description: 'Vendor rating updated successfully.',
-  })
-  updateVendorRating(
-    @Param('id') id: string,
-    @Body('rating', ParseFloatPipe) rating: number,
-  ) {
-    return this.usersService.updateVendorRating(id, rating);
-  }
 }
