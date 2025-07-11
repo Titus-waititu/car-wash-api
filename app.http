@@ -139,11 +139,11 @@ GET {{baseUrl}}/bookings/date-range?startDate=2025-07-01&endDate=2025-07-31
 GET {{baseUrl}}/bookings/1
 
 ### Update booking
-PATCH {{baseUrl}}/bookings/1
+PATCH {{baseUrl}}/bookings/5e2e8914-0286-40c4-a822-c6f23143969f
 Content-Type: {{contentType}}
 
 {
-  "status": "confirmed"
+  "total_amount": 30.00
 }
 
 ### Update booking status
@@ -376,6 +376,123 @@ Content-Type: {{contentType}}
     "type": "general",
     "priority": "medium",
     "channels": ["in_app", "email"]
+  }
+}
+
+### ========== PAYMENTS ==========
+
+### Create a new payment (Manual creation)
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+
+{
+  "amount": 50.00,
+  "status": "pending",
+  "payment_method": "Card",
+  "transaction_id": "test_txn_123",
+  "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f"
+}
+
+### Get all payments
+GET {{baseUrl}}/payments
+
+### Get payment statistics
+GET {{baseUrl}}/payments/statistics
+
+### Get payments with user filter
+GET {{baseUrl}}/payments?userId=bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
+
+### Get payment by ID
+GET {{baseUrl}}/payments/payment-uuid-here
+
+### Get payments by booking ID
+GET {{baseUrl}}/payments/booking/5e2e8914-0286-40c4-a822-c6f23143969f
+
+### Initialize payment for a booking
+POST {{baseUrl}}/payments/initialize
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f",
+  "email": "user@duck.com"
+}
+
+### Initialize payment for premium service
+POST {{baseUrl}}/payments/initialize
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f",
+  "email": "andreastailas96@gmail.com"
+}
+
+### Verify payment transaction
+POST {{baseUrl}}/payments/verify
+Content-Type: {{contentType}}
+
+{
+  "reference": "paystack_reference_here"
+}
+
+### Verify payment with sample reference
+POST {{baseUrl}}/payments/verify
+Content-Type: {{contentType}}
+
+{
+  "reference": "5rpq8rndk9"
+}
+
+### Update payment
+PATCH {{baseUrl}}/payments/payment-uuid-here
+Content-Type: {{contentType}}
+
+{
+  "status": "completed"
+}
+
+### Cancel pending payment
+POST {{baseUrl}}/payments/payment-uuid-here/cancel
+
+### Refund payment
+POST {{baseUrl}}/payments/payment-uuid-here/refund
+Content-Type: {{contentType}}
+
+{
+  "reason": "Customer request"
+}
+
+### Get payment by transaction ID
+GET {{baseUrl}}/payments/transaction/paystack_reference_here
+
+### Delete payment
+DELETE {{baseUrl}}/payments/payment-uuid-here
+
+### Paystack Webhook (for testing)
+POST {{baseUrl}}/payments/webhook
+Content-Type: {{contentType}}
+
+{
+  "event": "charge.success",
+  "data": {
+    "reference": "paystack_reference_here",
+    "amount": 5000,
+    "status": "success",
+    "customer": {
+      "email": "customer@example.com"
+    }
+  }
+}
+
+### Failed payment webhook
+POST {{baseUrl}}/payments/webhook
+Content-Type: {{contentType}}
+
+{
+  "event": "charge.failed",
+  "data": {
+    "reference": "paystack_reference_here",
+    "amount": 5000,
+    "status": "failed"
   }
 }
 

@@ -7,9 +7,14 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   Relation,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity()
+@Index(['status'])
+@Index(['transaction_id'], { unique: true })
 export class Payment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -18,24 +23,29 @@ export class Payment {
   amount: number;
 
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
-  status: string;
+  status: PaymentStatus;
 
-  @Column({nullable:true})
-  transaction_id:string
+  @Column({ nullable: true, unique: true })
+  transaction_id: string;
 
   @Column({
     type: 'enum',
     enum: PaymentMethod,
     default: PaymentMethod.CREDIT_CARD,
   })
-  payment_method: string;
+  payment_method: PaymentMethod;
 
   @Column({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    nullable: true,
   })
   paid_at: Date;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 
   @OneToOne(() => Booking, (booking) => booking.payment, {
     onDelete: 'CASCADE',

@@ -1,0 +1,103 @@
+### Car Wash API - Payments Module Testing
+
+# Base URL
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. Create a new payment (Manual creation)
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+
+{
+  "amount": 50.00,
+  "status": "pending",
+  "payment_method": "Card",
+  "transaction_id": "test_txn_123",
+  "bookingId": "booking-uuid-here"
+}
+
+### 2. Get all payments
+GET {{baseUrl}}/payments
+
+### 3. Get payment statistics
+GET {{baseUrl}}/payments/statistics
+
+### 4. Get payment by ID
+GET {{baseUrl}}/payments/payment-uuid-here
+
+### 5. Get payments by booking ID
+GET {{baseUrl}}/payments/booking/booking-uuid-here
+
+### 6. Initialize payment for a booking
+POST {{baseUrl}}/payments/initialize
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "booking-uuid-here",
+  "email": "customer@example.com"
+}
+
+### 7. Verify payment transaction
+POST {{baseUrl}}/payments/verify
+Content-Type: {{contentType}}
+
+{
+  "reference": "paystack_reference_here"
+}
+
+### 8. Update payment
+PATCH {{baseUrl}}/payments/payment-uuid-here
+Content-Type: {{contentType}}
+
+{
+  "status": "completed"
+}
+
+### 9. Cancel pending payment
+POST {{baseUrl}}/payments/payment-uuid-here/cancel
+
+### 10. Refund payment
+POST {{baseUrl}}/payments/payment-uuid-here/refund
+Content-Type: {{contentType}}
+
+{
+  "reason": "Customer request"
+}
+
+### 11. Get payment by transaction ID
+GET {{baseUrl}}/payments/transaction/paystack_reference_here
+
+### 12. Get payment history for specific user
+GET {{baseUrl}}/payments?userId=user-uuid-here
+
+### 13. Delete payment
+DELETE {{baseUrl}}/payments/payment-uuid-here
+
+### 14. Paystack Webhook (for testing)
+POST {{baseUrl}}/payments/webhook
+Content-Type: {{contentType}}
+
+{
+  "event": "charge.success",
+  "data": {
+    "reference": "paystack_reference_here",
+    "amount": 5000,
+    "status": "success",
+    "customer": {
+      "email": "customer@example.com"
+    }
+  }
+}
+
+### 15. Failed payment webhook
+POST {{baseUrl}}/payments/webhook
+Content-Type: {{contentType}}
+
+{
+  "event": "charge.failed",
+  "data": {
+    "reference": "paystack_reference_here",
+    "amount": 5000,
+    "status": "failed"
+  }
+}

@@ -20,6 +20,9 @@ export class Review {
   @Column()
   comment: string;
 
+  @Column({ type: 'boolean', default: false })
+  isReply: boolean;
+  
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
