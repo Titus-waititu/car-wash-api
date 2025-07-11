@@ -7,7 +7,6 @@ import { Repository } from 'typeorm';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import * as Bycrypt from 'bcrypt';
 
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,7 +15,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-    private async hashData(data: string): Promise<string> {
+  private async hashData(data: string): Promise<string> {
     const salt = await Bycrypt.genSalt(10);
     return await Bycrypt.hash(data, salt);
   }
@@ -29,13 +28,14 @@ export class AuthService {
     });
   }
 
-  async getTokens(id: string, email: string, role: string) {
+  async getTokens(id: string, email: string, role: string, username: string) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: id,
           email: email,
           role: role,
+          username: username,
         },
         {
           secret: this.configService.getOrThrow<string>(
@@ -51,6 +51,7 @@ export class AuthService {
           sub: id,
           email: email,
           role: role,
+          username: username,
         },
         {
           secret: this.configService.getOrThrow<string>(
@@ -63,19 +64,23 @@ export class AuthService {
       ),
     ]);
     return {
-        accessToken: at,
-        refreshToken: rt,
-    }
+      accessToken: at,
+      refreshToken: rt,
+    };
   }
 
-  async login (createAuthDto:CreateAuthDto){
-    const { email,username, password } = createAuthDto;
+  async login(createAuthDto: CreateAuthDto) {
+    const { email, username, password } = createAuthDto;
     const user = await this.usersRepository.findOne({
-      where: [
-        { email: email },
-        { username: username }
+      where: [{ email: email }, { username: username }],
+      select: [
+        'id',
+        'username',
+        'email',
+        'role',
+        'password',
+        'hashedRefreshToken',
       ],
-      select: ['id','username', 'email', 'role', 'password', 'hashedRefreshToken'],
     });
 
     if (!user) {
@@ -85,28 +90,33 @@ export class AuthService {
       };
     }
 
-   const isPasswordValid = await Bycrypt.compare(password, user.password);
+    const isPasswordValid = await Bycrypt.compare(password, user.password);
     if (!isPasswordValid) {
-        return {
-            success: false,
-            message: 'Invalid credentials',
-        };
-        }
+      return {
+        success: false,
+        message: 'Invalid credentials',
+      };
+    }
 
-    const tokens = await this.getTokens(user.id, user.email, user.role);
+    const tokens = await this.getTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.username,
+    );
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return {
-        success: true,
-        message: 'Login successful',
-        user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            role: user.role,
-        },
-        tokens: {
-          ...tokens
-        }
+      success: true,
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+      tokens: {
+        ...tokens,
+      },
     };
   }
 
@@ -128,13 +138,12 @@ export class AuthService {
       success: true,
       message: 'Logout successful',
     };
-
   }
 
-  async refreshTokens(id:string,refreshToken:string){
+  async refreshTokens(id: string, refreshToken: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'role', 'hashedRefreshToken'],
+      select: ['id', 'username', 'email', 'role', 'hashedRefreshToken'],
     });
 
     if (!user || !user.hashedRefreshToken) {
@@ -144,7 +153,10 @@ export class AuthService {
       };
     }
 
-    const isRefreshTokenValid = await Bycrypt.compare(refreshToken, user.hashedRefreshToken);
+    const isRefreshTokenValid = await Bycrypt.compare(
+      refreshToken,
+      user.hashedRefreshToken,
+    );
     if (!isRefreshTokenValid) {
       return {
         success: false,
@@ -152,7 +164,12 @@ export class AuthService {
       };
     }
 
-    const tokens = await this.getTokens(user.id, user.email, user.role);
+    const tokens = await this.getTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.username,
+    );
     await this.saveRefreshToken(user.id, tokens.refreshToken);
     return {
       success: true,
@@ -160,13 +177,14 @@ export class AuthService {
       ...tokens,
     };
   }
-  
-    async googleAuthRedirect(user: any) {
-    const { id, email, role,username } = user;
+
+  async googleAuthRedirect(user: any) {
+    const { id, email, role, username } = user;
     const { accessToken, refreshToken } = await this.getTokens(
       id,
       email,
       role,
+      username,
     );
     return {
       user: {
@@ -175,10 +193,18 @@ export class AuthService {
         email,
         role,
       },
-      tokens:{
+      tokens: {
         accessToken,
         refreshToken,
-      }
+      },
     };
+  }
+
+  async getUserById(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'username', 'email', 'role'],
+    });
+    return user;
   }
 }

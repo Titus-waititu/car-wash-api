@@ -15,6 +15,7 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { Request, Response } from 'express';
 import { RtGuard } from './guards/rt.guard';
 import { GoogleOauthGuard } from './guards/google.oauth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -59,36 +60,44 @@ export class AuthController {
   }
 
   // Callback after Google login
-// Callback after Google login
-@Public()
-@Get('google/callback')
-@UseGuards(GoogleOauthGuard)
-async googleAuthRedirect(@Req() req, @Res() res: Response) {
-  const user = req.user;
-  if (!user) {
-    throw new UnauthorizedException('Google authentication failed');
+  // Callback after Google login
+  @Public()
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedException('Google authentication failed');
+    }
+
+    const result = await this.authService.googleAuthRedirect(user);
+    const { accessToken, refreshToken } = result.tokens;
+
+    // Optional: include user info (minimized) in redirect
+    const frontendURL = new URL('http://localhost:3000/auth/google/callback');
+    frontendURL.searchParams.set('accessToken', accessToken);
+    frontendURL.searchParams.set('refreshToken', refreshToken);
+    frontendURL.searchParams.set('id', result.user.id);
+    frontendURL.searchParams.set('role', result.user.role);
+    frontendURL.searchParams.set('username', result.user.username);
+    frontendURL.searchParams.set('email', result.user.email);
+    // Redirect to frontend with tokens and role in URL
+    return res.redirect(frontendURL.toString());
   }
 
-  const result = await this.authService.googleAuthRedirect(user);
-  const { accessToken, refreshToken } = result.tokens;
+  @Get('me')
+  async getMe(@Req() req: Request) {
+    // `req.user` is populated by AtStrategy (global guard)
+    if (!req.user) {
+      throw new UnauthorizedException('User not authenticated');
+    }
 
-  // Store tokens in HttpOnly cookies
-  res.cookie('accessToken', accessToken, {
-    httpOnly: true,
-    secure: true, // use true in production (requires HTTPS)
-    sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 1, // 1 hour
-  });
-
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-  });
-
-  // Redirect safely to the frontend
-  return res.redirect('http://localhost:3000/auth/google/callback');
-}
-
+    // The JWT payload now contains: { sub, email, role, username }
+    return {
+      id: req.user['sub'],
+      username: req.user['username'],
+      email: req.user['email'],
+      role: req.user['role'],
+    };
+  }
 }
