@@ -40,7 +40,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       email: emails[0].value,
       username: name.givenName || name.familyName,
       role: UserRole.CUSTOMER, 
-      profilePicture: photos[0].value,
+      image_url: photos[0].value,
     });
     await this.userRepository.save(user);
   }
@@ -50,7 +50,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         email: user.email,
         username: user.username,
         role: user.role,
-        profilePicture: photos[0].value,
+        image_url: photos[0].value,
         providerId: id,
         provider: 'google',
 

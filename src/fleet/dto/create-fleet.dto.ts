@@ -6,7 +6,7 @@ import {
   IsDateString,
   IsNumber,
 } from 'class-validator';
-import { VehicleStatus } from 'src/types';
+import { VehicleStatus, VehicleType } from 'src/types';
 
 export class CreateFleetDto {
   @IsString()
@@ -19,7 +19,11 @@ export class CreateFleetDto {
 
   @IsString()
   @IsNotEmpty()
-  type: string;
+  type: VehicleType;
+
+  @IsString()
+  @IsNotEmpty()
+  image_url: string; // URL to vehicle image
 
   @IsString()
   @IsOptional()

@@ -18,16 +18,19 @@ import { FleetService } from './fleet.service';
 import { CreateFleetDto } from './dto/create-fleet.dto';
 import { UpdateFleetDto } from './dto/update-fleet.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { Public } from 'src/auth/decorators/public.decorator';
-import { VehicleStatus } from 'src/types';
+import { UserRole, VehicleStatus, VehicleType } from 'src/types';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { User } from 'src/users/entities/user.entity';
 
 @ApiTags('fleet')
+@UseGuards(RolesGuard)
 @Controller('fleet')
-@Public()
 export class FleetController {
   constructor(private readonly fleetService: FleetService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Add a new vehicle to fleet' })
   @ApiResponse({ status: 201, description: 'Vehicle added successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -40,6 +43,7 @@ export class FleetController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all fleet vehicles' })
   @ApiQuery({
     name: 'status',
@@ -64,6 +68,7 @@ export class FleetController {
   }
 
   @Get('stats')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get fleet statistics' })
   @ApiResponse({
     status: 200,
@@ -74,6 +79,7 @@ export class FleetController {
   }
 
   @Get('available')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get available vehicles' })
   @ApiResponse({
     status: 200,
@@ -84,6 +90,7 @@ export class FleetController {
   }
 
   @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get vehicles by user ID' })
   @ApiResponse({
     status: 200,
@@ -94,16 +101,18 @@ export class FleetController {
   }
 
   @Get('type/:type')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get vehicles by type' })
   @ApiResponse({
     status: 200,
     description: 'Vehicles by type retrieved successfully.',
   })
-  findByType(@Param('type') type: string) {
+  findByType(@Param('type') type: VehicleType) {
     return this.fleetService.findByType(type);
   }
 
   @Get('plate/:plateNumber')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get vehicle by plate number' })
   @ApiResponse({ status: 200, description: 'Vehicle retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Vehicle not found.' })
@@ -112,6 +121,7 @@ export class FleetController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get vehicle by ID' })
   @ApiResponse({ status: 200, description: 'Vehicle retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Vehicle not found.' })
@@ -120,6 +130,7 @@ export class FleetController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update vehicle by ID' })
   @ApiResponse({ status: 200, description: 'Vehicle updated successfully.' })
   @ApiResponse({ status: 404, description: 'Vehicle not found.' })
@@ -132,6 +143,7 @@ export class FleetController {
   }
 
   @Patch(':id/status')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update vehicle status' })
   @ApiResponse({
     status: 200,
@@ -146,6 +158,7 @@ export class FleetController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete vehicle by ID' })
   @ApiResponse({ status: 200, description: 'Vehicle deleted successfully.' })
@@ -208,6 +221,7 @@ export class FleetController {
   // }
 
   @Get('maintenance/due')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get vehicles due for maintenance' })
   @ApiResponse({
     status: 200,
@@ -218,6 +232,7 @@ export class FleetController {
   }
 
   @Patch(':id/maintenance')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Schedule maintenance reminder' })
   @ApiResponse({
     status: 200,

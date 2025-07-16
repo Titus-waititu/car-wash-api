@@ -11,20 +11,24 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/types';
 
 @ApiTags('reviews')
-@Public()
+@UseGuards(RolesGuard )
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Create a new review' })
   @ApiResponse({ status: 201, description: 'Review created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -33,6 +37,7 @@ export class ReviewsController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all reviews' })
   @ApiQuery({
     name: 'rating',
@@ -45,6 +50,7 @@ export class ReviewsController {
   }
 
   @Get('stats')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Get review statistics' })
   @ApiResponse({
     status: 200,
@@ -55,6 +61,7 @@ export class ReviewsController {
   }
 
   @Get('average-rating')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get average rating' })
   @ApiResponse({
     status: 200,
@@ -65,6 +72,7 @@ export class ReviewsController {
   }
 
   @Get('top')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get top reviews (5-star reviews)' })
   @ApiQuery({
     name: 'limit',
@@ -80,6 +88,7 @@ export class ReviewsController {
   }
 
   @Get('recent')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get recent reviews' })
   @ApiQuery({
     name: 'limit',
@@ -95,6 +104,7 @@ export class ReviewsController {
   }
 
   @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get reviews by user ID' })
   @ApiResponse({
     status: 200,
@@ -105,6 +115,7 @@ export class ReviewsController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get review by ID' })
   @ApiResponse({ status: 200, description: 'Review retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Review not found.' })
@@ -113,6 +124,7 @@ export class ReviewsController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Update review by ID' })
   @ApiResponse({ status: 200, description: 'Review updated successfully.' })
   @ApiResponse({ status: 404, description: 'Review not found.' })
@@ -129,6 +141,7 @@ export class ReviewsController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete review by ID' })
   @ApiResponse({ status: 200, description: 'Review deleted successfully.' })
@@ -143,6 +156,7 @@ export class ReviewsController {
   }
 
   @Delete('cleanup/orphaned')
+  @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Clean up reviews without service relations' })
   @ApiResponse({

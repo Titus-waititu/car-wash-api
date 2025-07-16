@@ -1,4 +1,4 @@
-import { VehicleStatus } from 'src/types';
+import { VehicleState, VehicleStatus, VehicleType } from 'src/types';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
+
 
 @Entity()
 export class Fleet {
@@ -21,8 +22,11 @@ export class Fleet {
   @Column()
   model: string;
 
-  @Column()
-  type: string; // e.g., Sedan, SUV, Truck
+  @Column({ type: 'enum', enum: VehicleType , default: VehicleType.Sedan})
+  type: VehicleType;
+
+  @Column({ nullable: true })
+  image_url: string; // URL to vehicle image
 
   @Column({ nullable: true })
   color: string;
@@ -35,6 +39,9 @@ export class Fleet {
 
   @Column({ nullable: true })
   vin_number: string;
+
+  @Column({type: 'enum', enum: VehicleState, default: VehicleState.AVAILABLE})
+  state:VehicleState;
 
   // Wash/service status tracking
   @Column({

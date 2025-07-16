@@ -12,20 +12,24 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/types';
 
 @ApiTags('users')
-@Public()
+@UseGuards(RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -35,6 +39,7 @@ export class UsersController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all users' })
   @ApiQuery({
     name: 'search',
@@ -50,6 +55,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
@@ -58,6 +64,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update user by ID' })
   @ApiResponse({ status: 200, description: 'User updated successfully.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
@@ -69,6 +76,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully.' })
@@ -78,6 +86,7 @@ export class UsersController {
   }
 
   @Get('vendors/nearby')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Find vendors near location' })
   @ApiQuery({ name: 'latitude', required: true, description: 'Latitude' })
   @ApiQuery({ name: 'longitude', required: true, description: 'Longitude' })
@@ -104,6 +113,7 @@ export class UsersController {
   }
 
   @Get('vendors/city/:city')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Find vendors by city' })
   @ApiResponse({
     status: 200,
@@ -114,6 +124,7 @@ export class UsersController {
   }
 
   @Get('vendors/stats')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Get vendor statistics' })
   @ApiResponse({
     status: 200,
@@ -124,6 +135,7 @@ export class UsersController {
   }
 
   @Get('role/:role')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get users by role' })
   @ApiResponse({
     status: 200,

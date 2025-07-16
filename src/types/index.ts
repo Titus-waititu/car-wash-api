@@ -6,8 +6,12 @@ export enum UserRole {
 
 export enum PaymentStatus {
   PENDING = 'pending',
+  PROCESSING = 'processing',
   COMPLETED = 'completed',
   FAILED = 'failed',
+  CANCELLED = 'cancelled',
+  REFUNDED = 'refunded',
+  EXPIRED = 'expired',
 }
 
 export enum ServiceProviderStatus {
@@ -25,10 +29,29 @@ export enum ServiceCategory {
   Protection = 'protection',
 }
 
+export enum VehicleState {
+  AVAILABLE = 'available',
+  ARCHIVED = 'archived',
+}
+
+export enum VehicleType {
+  Sedan = 'Sedan',
+  SUV = 'SUV',
+  Truck = 'Truck',
+  Coupe = 'Coupe',
+  Hatchback = 'Hatchback',
+  Convertible = 'Convertible',
+  Van = 'Van',
+  Motorcycle = 'Motorcycle',
+}
+
 export enum PaymentMethod {
-  MPESA = 'MPesa',
-  CREDIT_CARD = 'Card',
-  CASH = 'Cash',
+  MPESA = 'mpesa',
+  STRIPE = 'stripe',
+  CREDIT_CARD = 'credit_card',
+  DEBIT_CARD = 'debit_card',
+  CASH = 'cash',
+  BANK_TRANSFER = 'bank_transfer',
 }
 
 export enum BookingStatus {
@@ -39,8 +62,8 @@ export enum BookingStatus {
 }
 
 export enum VehicleStatus {
-  WAITING = 'WAITING',       
-  IN_PROGRESS = 'IN_PROGRESS', 
-  COMPLETED = 'COMPLETED',   
-  CANCELLED = 'CANCELLED',  
+  WAITING = 'WAITING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }

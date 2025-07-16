@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Fleet } from './entities/fleet.entity';
 import { ILike, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { VehicleStatus } from 'src/types';
+import { VehicleStatus, VehicleType } from 'src/types';
 
 @Injectable()
 export class FleetService {
@@ -212,10 +212,11 @@ export class FleetService {
       .getMany();
   }
 
-  async findByType(type: string): Promise<Fleet[]> {
-    return await this.fleetRepository.find({
-      where: { type: ILike(`%${type}%`) },
-      relations: ['user'],
-    });
+  async findByType(type: VehicleType): Promise<Fleet[]> {
+    return await this.fleetRepository
+      .createQueryBuilder('fleet')
+      .leftJoinAndSelect('fleet.user', 'user')
+      .where('LOWER(fleet.type) LIKE :type', { type: `%${type.toLowerCase()}%` })
+      .getMany();
   }
 }

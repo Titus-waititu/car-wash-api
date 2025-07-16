@@ -37,6 +37,9 @@ export class Booking {
   @Column({ type: 'text', nullable: true })
   special_instructions: string;
 
+  @Column({default: false})
+  is_recurring: boolean;
+
   // Optional internal notes for service providers
   @Column({ type: 'text', nullable: true })
   service_notes: string;
@@ -68,6 +71,7 @@ export class Booking {
   @ManyToOne(() => User, (user) => user.bookings, {
     onDelete: 'CASCADE',
     nullable: false,
+    eager: true,
   })
   @JoinColumn()
   user: Relation<User>;
@@ -85,7 +89,7 @@ export class Booking {
   })
   @JoinColumn()
   vehicle: Relation<Fleet>;
-  
+
   @OneToOne(() => Payment, (payment) => payment.booking, {
     onDelete: 'SET NULL',
     nullable: true,

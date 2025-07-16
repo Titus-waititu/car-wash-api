@@ -32,22 +32,6 @@ import { LoggerMiddleware } from 'logger.middleware';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    CacheModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      isGlobal: true,
-      useFactory: (configService: ConfigService) => {
-        return {
-          ttl: configService.get<number>('CACHE_TTL', 60000), // Default TTL of 60 seconds
-          stores: [
-            new Keyv({
-              store: new CacheableMemory({ ttl: 30000, lruSize: 5000 }),
-            }),
-            createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-          ],
-        };
-      },
-    }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -63,34 +47,34 @@ import { LoggerMiddleware } from 'logger.middleware';
         },
       ],
     }),
-    CacheModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      isGlobal: true,
-      useFactory: (configService: ConfigService) => {
-        return {
-          ttl: 60000, // Default TTL for cache entries
-          stores: [
-            // Memory store for fast local access
-            new Keyv({
-              store: new CacheableMemory({ ttl: 30000, lruSize: 5000 }),
-            }),
-            // Redis store for distributed caching
-            createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-          ],
-        };
-      },
-    }),
+    // CacheModule.registerAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   isGlobal: true,
+    //   useFactory: (configService: ConfigService) => {
+    //     return {
+    //       ttl: 60000, // Default TTL for cache entries
+    //       stores: [
+    //         // Memory store for fast local access
+    //         new Keyv({
+    //           store: new CacheableMemory({ ttl: 30000, lruSize: 5000 }),
+    //         }),
+    //         // Redis store for distributed caching
+    //         createKeyv(configService.getOrThrow<string>('REDIS_URL')),
+    //       ],
+    //     };
+    //   },
+    // }),
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AtGuard,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor,
+    // },
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

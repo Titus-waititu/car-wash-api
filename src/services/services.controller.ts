@@ -12,20 +12,24 @@ import {
   HttpCode,
   HttpStatus,
   ParseFloatPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRole } from 'src/types';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @ApiTags('services')
-@Public()
+@UseGuards(RolesGuard)
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Create a new service' })
   @ApiResponse({ status: 201, description: 'Service created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -34,6 +38,7 @@ export class ServicesController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all services' })
   @ApiQuery({
     name: 'search',
@@ -46,6 +51,7 @@ export class ServicesController {
   }
 
   @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get services by user ID' })
   @ApiResponse({
     status: 200,
@@ -56,6 +62,7 @@ export class ServicesController {
   }
 
   @Get('price-range')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get services by price range' })
   @ApiQuery({ name: 'minPrice', required: true, description: 'Minimum price' })
   @ApiQuery({ name: 'maxPrice', required: true, description: 'Maximum price' })
@@ -71,6 +78,7 @@ export class ServicesController {
   }
 
     @Get('compare/:category')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Compare service prices by category' })
   @ApiQuery({ name: 'latitude', required: false, description: 'User latitude' })
   @ApiQuery({
@@ -106,6 +114,7 @@ export class ServicesController {
   }
 
   @Get('nearby')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Find services near location' })
   @ApiQuery({ name: 'latitude', required: true, description: 'Latitude' })
   @ApiQuery({ name: 'longitude', required: true, description: 'Longitude' })
@@ -132,6 +141,7 @@ export class ServicesController {
   }
 
   @Get('mobile')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get mobile car wash services' })
   @ApiResponse({
     status: 200,
@@ -142,6 +152,7 @@ export class ServicesController {
   }
 
   @Get('stats')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Get service statistics' })
   @ApiResponse({
     status: 200,
@@ -152,6 +163,7 @@ export class ServicesController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get service by ID' })
   @ApiResponse({ status: 200, description: 'Service retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Service not found.' })
@@ -160,6 +172,7 @@ export class ServicesController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Update service by ID' })
   @ApiResponse({ status: 200, description: 'Service updated successfully.' })
   @ApiResponse({ status: 404, description: 'Service not found.' })
@@ -171,6 +184,7 @@ export class ServicesController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete service by ID' })
   @ApiResponse({ status: 200, description: 'Service deleted successfully.' })

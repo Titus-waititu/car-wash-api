@@ -2,12 +2,14 @@
 
 @baseUrl = http://localhost:8080
 @contentType = application/json
-@RefreshToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoiaG9seUBkdWNrLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc1MTQ2MzE1NSwiZXhwIjoxNzUxNDYzNzU1fQ.4PGWjprAfgzvjWsEequSXINluiMnnI7z1mqNOWDMPXs
+@RefreshToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYjhkMmExYi1jYzg4LTRhNTUtYTlmYy03ZTNiMjk1MmM1MjciLCJlbWFpbCI6ImFuZHJlYXN0YWlsYXM5NjlAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlcm5hbWUiOiJUaXR1cyB3YWl0aXR1IiwiaWF0IjoxNzUyNDgwMzkyLCJleHAiOjE3NTMzNDQzOTJ9.JgvezaPlt0IuFiE6Qn-SixC53sduecdaV-wL3hCzdMU
 
+@AccessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYjhkMmExYi1jYzg4LTRhNTUtYTlmYy03ZTNiMjk1MmM1MjciLCJlbWFpbCI6ImFuZHJlYXN0YWlsYXM5NjlAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlcm5hbWUiOiJUaXR1cyB3YWl0aXR1IiwiaWF0IjoxNzUyNDgzMjk2LCJleHAiOjE3NTMzNDcyOTZ9.dX4dN_hjt70vN7_rTMfS1oE258Vc96tTF8hqsJ74j-Y
 ### ========== USERS ==========
 
 ### Get all users
-GET {{baseUrl}}/users
+GET {{baseUrl}}/bookings
+Authorization: Bearer {{AccessToken}}
 
 ### Create a new user
 POST {{baseUrl}}/users
@@ -32,17 +34,19 @@ Content-Type: {{contentType}}
 }
 ### Get user by ID
 GET {{baseUrl}}/users
+Authorization: Bearer {{AccessToken}}
 
 ### Search users
 GET {{baseUrl}}/users?search=john
 
 ### Update user
-PATCH {{baseUrl}}/users/f1d7893d-f990-41c4-832a-711680e9a3ed
+PATCH {{baseUrl}}/users/bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
 Content-Type: {{contentType}}
 
 {
-  "username": "John Travolta"
-}
+  "business_name": "John's Car Wash",
+  "service_radius_km":45
+  }
 
 ### Delete user
 DELETE {{baseUrl}}/users/1
@@ -54,12 +58,12 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "username": "John Doe",
+  "username": "user",
   "password": "12345678"
 }
 
 ### Refresh token
-GET {{baseUrl}}/auth/refresh?id=1
+GET {{baseUrl}}/auth/refresh?id=bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
 Authorization: Bearer {{RefreshToken}}
 
 ### ========== SERVICES ==========
@@ -94,11 +98,11 @@ GET {{baseUrl}}/services/price-range?minPrice=20&maxPrice=50
 GET {{baseUrl}}/services/1
 
 ### Update service
-PATCH {{baseUrl}}/services/1
+PATCH {{baseUrl}}/services/38f62908-d41a-4339-916f-7d5a0bbc2a61
 Content-Type: {{contentType}}
 
 {
-  "price": 29.99
+  "userId":"bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
 }
 
 ### Delete service
@@ -114,7 +118,8 @@ Content-Type: {{contentType}}
   "booking_time": "2025-07-15T10:00:00Z",
   "address": "123 Main St, City, State",
   "userId": "d7f74df6-caee-40fc-bc5b-3887a85636a5",
-  "serviceId": "38f62908-d41a-4339-916f-7d5a0bbc2a61"
+  "serviceId": "38f62908-d41a-4339-916f-7d5a0bbc2a61",
+  "vehicleId": "166753b0-8fb7-4365-bd32-f2334b91098d"
   }
 
 ### Get all bookings
@@ -136,14 +141,14 @@ GET {{baseUrl}}/bookings/service/1
 GET {{baseUrl}}/bookings/date-range?startDate=2025-07-01&endDate=2025-07-31
 
 ### Get booking by ID
-GET {{baseUrl}}/bookings/1
+GET {{baseUrl}}/services
 
 ### Update booking
-PATCH {{baseUrl}}/bookings/5e2e8914-0286-40c4-a822-c6f23143969f
+PATCH {{baseUrl}}/bookings/f2f4ab0f-da81-4b1e-9e4b-21f8e0cff609
 Content-Type: {{contentType}}
 
 {
-  "total_amount": 30.00
+  "vehicleId": "8f7587a8-85e8-4c86-8503-c2c1c5bb203c"
 }
 
 ### Update booking status
@@ -155,23 +160,30 @@ Content-Type: {{contentType}}
 }
 
 ### Delete booking
-DELETE {{baseUrl}}/bookings/1
+DELETE {{baseUrl}}/services/3918f3f8-529d-4522-9e81-87d37f9c7256
 
 ### ========== FLEET ==========
 
 ### Create a new fleet vehicle
 POST {{baseUrl}}/fleet
+Authorization: Bearer {{AccessToken}}
 Content-Type: {{contentType}}
 
 {
-    "plate_number": "KAV-784",
-    "model": "Nissan X-Trail",
-    "type": "Deluxe",
-  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+  "image_url": "https://res.cloudinary.com/dhkwchmgl/image/upload/v1752563014/devon-janse-van-rensburg-yoqHLUayUTg-unsplash_cl2luu.jpg",
+  "plate_number": "ABC-123",
+  "model": "BMW 3 Series",
+  "type": "Sedan",
+  "color": "Red",
+  "make": "BMW",
+  "year": 2020,
+  "next_service_due": "2025-08-01",
+  "userId": "9a84a884-4e22-4e83-9fdb-b34a0418e1fd"
 }
 
 ### Get all fleet vehicles
-GET {{baseUrl}}/fleet
+GET {{baseUrl}}/payments
+Authorization: Bearer {{AccessToken}}
 
 ### Get fleet by status
 GET {{baseUrl}}/fleet?status=available
@@ -186,7 +198,8 @@ GET {{baseUrl}}/fleet/stats
 GET {{baseUrl}}/fleet/available
 
 ### Get vehicles by user
-GET {{baseUrl}}/fleet/user/1
+GET {{baseUrl}}/fleet/user/9a84a884-4e22-4e83-9fdb-b34a0418e1fd
+Authorization: Bearer {{AccessToken}}
 
 ### Get vehicles by type
 GET {{baseUrl}}/fleet/type/Service Vehicle
@@ -410,6 +423,7 @@ GET {{baseUrl}}/payments/booking/5e2e8914-0286-40c4-a822-c6f23143969f
 
 ### Initialize payment for a booking
 POST {{baseUrl}}/payments/initialize
+Authorization: Bearer {{AccessToken}}
 Content-Type: {{contentType}}
 
 {
@@ -495,6 +509,283 @@ Content-Type: {{contentType}}
     "status": "failed"
   }
 }
+
+### ========== M-PESA PAYMENTS ==========
+
+### Initialize M-Pesa STK Push Payment
+POST {{baseUrl}}/payments/mpesa/initialize
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "bookingId": "591ff6fb-e8c9-456d-9c26-42e0084bac84",
+  "amount": 1500,
+  "phoneNumber": "254745397503"
+}
+
+### Initialize M-Pesa payment with test failure number
+POST {{baseUrl}}/payments/mpesa/initialize
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f",
+  "amount": 100,
+  "phoneNumber": "254711049523",
+  "description": "Test failed payment"
+}
+
+### Verify M-Pesa Payment Status
+POST {{baseUrl}}/payments/mpesa/verify
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "checkoutRequestId": "ws_CO_15072025160106049745397503"
+}
+
+### M-Pesa Callback Webhook (Safaricom sends this)
+POST {{baseUrl}}/payments/mpesa/callback
+Content-Type: {{contentType}}
+
+{
+  "Body": {
+    "stkCallback": {
+      "MerchantRequestID": "29115-34620561-1",
+      "CheckoutRequestID": "ws_CO_15072025160106049745397503",
+      "ResultCode": 0,
+      "ResultDesc": "The service request is processed successfully.",
+      "CallbackMetadata": {
+        "Item": [
+          {
+            "Name": "Amount",
+            "Value": 1500
+          },
+          {
+            "Name": "MpesaReceiptNumber",
+            "Value": "NLJ7RT61SV"
+          },
+          {
+            "Name": "TransactionDate",
+            "Value": 20250115154500
+          },
+          {
+            "Name": "PhoneNumber",
+            "Value": 254708374149
+          }
+        ]
+      }
+    }
+  }
+}
+
+### M-Pesa Failed Payment Callback
+POST {{baseUrl}}/payments/mpesa/callback
+Content-Type: {{contentType}}
+
+{
+  "Body": {
+    "stkCallback": {
+      "MerchantRequestID": "29115-34620561-2",
+      "CheckoutRequestID": "ws_CO_DMZ_123456789_12345678901234567891",
+      "ResultCode": 1032,
+      "ResultDesc": "Request cancelled by user"
+    }
+  }
+}
+
+### ========== STRIPE PAYMENTS ==========
+
+### Initialize Stripe Payment Intent
+POST {{baseUrl}}/payments/stripe/initialize
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "bookingId": "591ff6fb-e8c9-456d-9c26-42e0084bac84",
+  "email": "customer@example.com",
+  "amount": 2500,
+  "currency": "usd"
+}
+
+### Initialize Stripe Payment Intent with EUR
+POST {{baseUrl}}/payments/stripe/initialize
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "bookingId": "591ff6fb-e8c9-456d-9c26-42e0084bac84",
+  "email": "european.customer@example.com",
+  "amount": 2000,
+  "currency": "eur"
+}
+
+### Initialize Stripe Payment with Success/Cancel URLs (Checkout Session)
+POST {{baseUrl}}/payments/stripe/initialize
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "bookingId": "591ff6fb-e8c9-456d-9c26-42e0084bac84",
+  "email": "customer@example.com",
+  "amount": 3000,
+  "currency": "usd",
+  "successUrl": "https://yourapp.com/payment/success?session_id={CHECKOUT_SESSION_ID}",
+  "cancelUrl": "https://yourapp.com/payment/cancelled",
+  "customerName": "John Doe"
+}
+
+### Initialize Stripe Payment for KES
+POST {{baseUrl}}/payments/stripe/initialize
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f",
+  "email": "kenyan.customer@example.com",
+  "amount": 150000,
+  "currency": "kes"
+}
+
+### Verify Stripe Payment Intent
+POST {{baseUrl}}/payments/stripe/verify
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "sessionId": "pi_1234567890abcdef"
+}
+
+### Verify Stripe Checkout Session  
+POST {{baseUrl}}/payments/stripe/verify
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "sessionId": "cs_test_a14biP0iJ7Mn9f2SXbrTaZZIpv4o8V4Jv3KNDdow5ki5i07veKRoMKEWdT"
+}
+
+### Stripe Webhook - Payment Intent Succeeded
+POST {{baseUrl}}/payments/stripe/webhook
+Content-Type: {{contentType}}
+Stripe-Signature: t=1234567890,v1=test_signature
+
+{
+  "id": "evt_1234567890abcdef",
+  "object": "event",
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_1234567890abcdef",
+      "amount": 2500,
+      "currency": "usd",
+      "status": "succeeded",
+      "metadata": {
+        "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f"
+      }
+    }
+  }
+}
+
+### Stripe Webhook - Payment Intent Failed
+POST {{baseUrl}}/payments/stripe/webhook
+Content-Type: {{contentType}}
+Stripe-Signature: t=1234567890,v1=test_signature
+
+{
+  "id": "evt_1234567890abcdef",
+  "object": "event",
+  "type": "payment_intent.payment_failed",
+  "data": {
+    "object": {
+      "id": "pi_1234567890abcdef",
+      "amount": 2500,
+      "currency": "usd",
+      "status": "requires_payment_method",
+      "last_payment_error": {
+        "message": "Your card was declined."
+      },
+      "metadata": {
+        "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f"
+      }
+    }
+  }
+}
+
+### Stripe Webhook - Checkout Session Completed
+POST {{baseUrl}}/payments/stripe/webhook
+Content-Type: {{contentType}}
+Stripe-Signature: t=1234567890,v1=test_signature
+
+{
+  "id": "evt_1234567890abcdef",
+  "object": "event",
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "id": "cs_test_1234567890abcdef",
+      "payment_intent": "pi_1234567890abcdef",
+      "amount_total": 2500,
+      "currency": "usd",
+      "payment_status": "paid",
+      "metadata": {
+        "bookingId": "5e2e8914-0286-40c4-a822-c6f23143969f"
+      }
+    }
+  }
+}
+
+### ========== PAYMENT REFUNDS ==========
+
+### Refund Payment (works for all payment types)
+POST {{baseUrl}}/payments/payment-uuid-here/refund
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "reason": "Customer requested refund"
+}
+
+### Refund Payment with specific reason
+POST {{baseUrl}}/payments/payment-uuid-here/refund  
+Content-Type: {{contentType}}
+Authorization: Bearer {{AccessToken}}
+
+{
+  "reason": "Service not delivered"
+}
+
+### ========== PAYMENT HISTORY & ANALYTICS ==========
+
+### Get Payment History by Booking ID
+GET {{baseUrl}}/payments/booking/591ff6fb-e8c9-456d-9c26-42e0084bac84
+Authorization: Bearer {{AccessToken}}
+
+### Get Payment Statistics
+GET {{baseUrl}}/payments/statistics
+Authorization: Bearer {{AccessToken}}
+
+### Delete Payment
+DELETE {{baseUrl}}/payments/8947efa3-4b09-4cff-8851-5d67e81833bd
+Authorization: Bearer {{AccessToken}}
+
+### ========== TESTING VARIABLES ==========
+
+# Test M-Pesa Phone Numbers (Sandbox):
+# Success: 254708374149
+# Failure: 254711049523
+# Any amount between 1 and 70000
+
+# Test Stripe Cards:
+# Success: 4242424242424242
+# Decline: 4000000000000002
+# Insufficient funds: 4000000000009995
+# 3D Secure: 4000000000003220
+
+# Test Amounts:
+# Small: 100 (KES 1.00 / USD 1.00)
+# Medium: 1500 (KES 15.00 / USD 15.00)  
+# Large: 5000 (KES 50.00 / USD 50.00)
 
 ### ========== API DOCUMENTATION ==========
 

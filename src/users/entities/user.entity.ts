@@ -31,7 +31,7 @@ export class User {
   phone_number: string;
 
   @Column({ nullable: true })
-  profilePicture: string;
+  image_url: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;

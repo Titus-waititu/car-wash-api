@@ -11,21 +11,25 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingStatus } from './entities/booking.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/types';
 
-@Public()
+@UseGuards(RolesGuard)
 @ApiTags('bookings')
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Create a new booking' })
   @ApiResponse({ status: 201, description: 'Booking created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -34,6 +38,7 @@ export class BookingsController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all bookings' })
   @ApiQuery({
     name: 'status',
@@ -47,6 +52,7 @@ export class BookingsController {
   }
 
   @Get('stats')
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get booking statistics' })
   @ApiResponse({
     status: 200,
@@ -57,6 +63,7 @@ export class BookingsController {
   }
 
   @Get('user/:userId')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get bookings by user ID' })
   @ApiResponse({
     status: 200,
@@ -67,6 +74,7 @@ export class BookingsController {
   }
 
   @Get('service/:serviceId')
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get bookings by service ID' })
   @ApiResponse({
     status: 200,
@@ -77,6 +85,7 @@ export class BookingsController {
   }
 
   @Get('date-range')
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get bookings by date range' })
   @ApiQuery({
     name: 'startDate',
@@ -103,6 +112,7 @@ export class BookingsController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get booking by ID' })
   @ApiResponse({ status: 200, description: 'Booking retrieved successfully.' })
   @ApiResponse({ status: 404, description: 'Booking not found.' })
@@ -111,6 +121,7 @@ export class BookingsController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update booking by ID' })
   @ApiResponse({ status: 200, description: 'Booking updated successfully.' })
   @ApiResponse({ status: 404, description: 'Booking not found.' })
@@ -122,6 +133,7 @@ export class BookingsController {
   }
 
   @Patch(':id/status')
+  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update booking status' })
   @ApiResponse({
     status: 200,
@@ -136,6 +148,7 @@ export class BookingsController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete booking by ID' })
   @ApiResponse({ status: 200, description: 'Booking deleted successfully.' })
@@ -146,6 +159,7 @@ export class BookingsController {
 
 
   @Patch(':id/start')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Start service for booking' })
   @ApiResponse({ status: 200, description: 'Service started successfully.' })
   startService(@Param('id') id: string) {
@@ -153,6 +167,7 @@ export class BookingsController {
   }
 
   @Patch(':id/complete')
+  @Roles(UserRole.ADMIN, UserRole.VENDOR)
   @ApiOperation({ summary: 'Complete service for booking' })
   @ApiResponse({ status: 200, description: 'Service completed successfully.' })
   completeService(

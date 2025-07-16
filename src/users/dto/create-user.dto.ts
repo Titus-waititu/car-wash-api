@@ -116,6 +116,8 @@ export class CreateUserDto {
   @MaxLength(20)
   postal_code?: string;
 
+  @IsOptional()
+  commission_rate?:number
   // Vendor-specific fields
   @ApiPropertyOptional({
     description: 'Business name (for vendors)',
@@ -128,7 +130,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  profilePicture?: string;
+  image_url?: string;
 
   @ApiPropertyOptional({
     description: 'Business license number (for vendors)',

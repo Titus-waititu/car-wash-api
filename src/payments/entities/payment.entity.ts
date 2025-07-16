@@ -28,6 +28,30 @@ export class Payment {
   @Column({ nullable: true, unique: true })
   transaction_id: string;
 
+  // M-Pesa specific fields
+  @Column({ nullable: true })
+  mpesa_checkout_request_id: string;
+
+  @Column({ nullable: true })
+  mpesa_receipt_number: string;
+
+  @Column({ nullable: true })
+  phone_number: string;
+
+  // Stripe specific fields
+  @Column({ nullable: true })
+  stripe_payment_intent_id: string;
+
+  @Column({ nullable: true })
+  stripe_session_id: string;
+
+  // General fields
+  @Column({ nullable: true })
+  external_reference: string;
+
+  @Column({ type: 'text', nullable: true })
+  failure_reason: string;
+
   @Column({
     type: 'enum',
     enum: PaymentMethod,

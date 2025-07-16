@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsNotEmpty,
@@ -20,6 +21,10 @@ export class CreateBookingDto {
   @IsString()
   @IsOptional()
   address?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_recurring?: boolean;
 
   @IsString()
   @IsOptional()

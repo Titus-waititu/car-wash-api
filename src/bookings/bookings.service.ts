@@ -74,6 +74,9 @@ export class BookingsService {
       .createQueryBuilder('booking')
       .leftJoinAndSelect('booking.user', 'user')
       .leftJoinAndSelect('booking.service', 'service')
+      .leftJoinAndSelect('service.user', 'serviceProvider')
+      .leftJoinAndSelect('service.reviews', 'serviceReviews')
+      .leftJoinAndSelect('serviceReviews.user', 'reviewUser')
       .leftJoinAndSelect('booking.payment', 'payment')
       .leftJoinAndSelect('booking.vehicle', 'vehicle')
       .orderBy('booking.booking_time', 'DESC');
@@ -88,7 +91,15 @@ export class BookingsService {
   async findOne(id: string): Promise<Booking> {
     const booking = await this.bookingRepository.findOne({
       where: { id },
-      relations: ['user', 'service', 'payment', 'vehicle'],
+      relations: [
+        'user',
+        'service',
+        'service.user',
+        'service.reviews',
+        'service.reviews.user',
+        'payment',
+        'vehicle',
+      ],
     });
 
     if (!booking)
@@ -152,7 +163,15 @@ export class BookingsService {
   async findByUser(userId: string): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: { user: { id: userId } },
-      relations: ['user', 'service', 'payment', 'vehicle'],
+      relations: [
+        'user',
+        'service',
+        'service.user',
+        'service.reviews',
+        'service.reviews.user',
+        'payment',
+        'vehicle',
+      ],
       order: { booking_time: 'DESC' },
     });
   }
@@ -160,7 +179,15 @@ export class BookingsService {
   async findByService(serviceId: string): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: { service: { id: serviceId } },
-      relations: ['user', 'service', 'payment', 'vehicle'],
+      relations: [
+        'user',
+        'service',
+        'service.user',
+        'service.reviews',
+        'service.reviews.user',
+        'payment',
+        'vehicle',
+      ],
       order: { booking_time: 'DESC' },
     });
   }
@@ -168,7 +195,15 @@ export class BookingsService {
   async findByDateRange(start: Date, end: Date): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: { booking_time: Between(start, end) },
-      relations: ['user', 'service', 'payment', 'vehicle'],
+      relations: [
+        'user',
+        'service',
+        'service.user',
+        'service.reviews',
+        'service.reviews.user',
+        'payment',
+        'vehicle',
+      ],
       order: { booking_time: 'ASC' },
     });
   }
