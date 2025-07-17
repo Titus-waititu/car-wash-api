@@ -13,6 +13,7 @@ import {
   Min,
 } from 'class-validator';
 import { ServiceCategory } from 'src/types';
+import { FeatureType, VehicleType } from 'src/services/entities/service.entity';
 
 export class CreateServiceDto {
   @IsString()
@@ -41,7 +42,6 @@ export class CreateServiceDto {
   @IsUrl()
   image_url?: string;
 
-  // Optional discounted price setup
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   original_price?: number;
@@ -52,31 +52,20 @@ export class CreateServiceDto {
   @Max(100)
   discount_percentage?: number;
 
-  // Service availability
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  service_areas?: string[];
-
   @IsOptional()
   @IsBoolean()
   is_mobile_service?: boolean;
 
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  travel_charge_per_km?: number;
-
-  // Vehicle types like sedan, SUV, bike, etc.
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  supported_vehicle_types?: string[];
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  included_features?: string[];
+  @IsEnum(VehicleType, { each: true })
+  supported_vehicle_types?: VehicleType[];
+
+  @IsOptional()
+  @IsArray()
+  @IsEnum(FeatureType, { each: true })
+  included_features?: FeatureType[];
 
   @IsOptional()
   @IsString()

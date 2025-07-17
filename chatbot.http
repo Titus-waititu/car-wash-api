@@ -1,0 +1,80 @@
+### Chatbot API Tests
+
+# Test chat endpoint
+POST http://localhost:3000/chatbot/chat
+Content-Type: application/json
+
+{
+  "query": "Hello, what services do you offer?",
+  "userId": "optional-user-id"
+}
+
+###
+
+# Test service inquiry
+POST http://localhost:3000/chatbot/chat
+Content-Type: application/json
+
+{
+  "query": "I need a car wash service. What options do you have?",
+  "userId": "optional-user-id"
+}
+
+###
+
+# Test location inquiry
+POST http://localhost:3000/chatbot/chat
+Content-Type: application/json
+
+{
+  "query": "Where are your locations? I need to find one near me.",
+  "userId": "optional-user-id"
+}
+
+###
+
+# Test booking inquiry with user ID
+POST http://localhost:3000/chatbot/chat
+Content-Type: application/json
+
+{
+  "query": "What are my current bookings?",
+  "userId": "your-actual-user-id-here"
+}
+
+###
+
+# Test pricing inquiry
+POST http://localhost:3000/chatbot/chat
+Content-Type: application/json
+
+{
+  "query": "How much does a basic car wash cost?",
+  "userId": "optional-user-id"
+}
+
+###
+
+# Test help inquiry
+POST http://localhost:3000/chatbot/chat
+Content-Type: application/json
+
+{
+  "query": "I need help, what can you assist me with?",
+  "userId": "optional-user-id"
+}
+
+###
+
+# Get conversation history by session
+GET http://localhost:3000/chatbot/conversation/session_123456789
+
+###
+
+# Get user conversations
+GET http://localhost:3000/chatbot/user/user-id-here/conversations
+
+###
+
+# Get all conversations (admin)
+GET http://localhost:3000/chatbot

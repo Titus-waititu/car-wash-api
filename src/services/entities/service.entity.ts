@@ -1,4 +1,5 @@
 import { Booking } from 'src/bookings/entities/booking.entity';
+import { CarWashLocation } from 'src/car-wash-location/entities/car-wash-location.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { ServiceCategory } from 'src/types';
 import { User } from 'src/users/entities/user.entity';
@@ -6,6 +7,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -68,16 +71,9 @@ export class Service {
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   discount_percentage: number;
 
-  // Supported locations
-  @Column({ type: 'json', nullable: true })
-  service_areas: string[]; // e.g., ['Nairobi', 'Westlands']
-
   // Mobile service
   @Column({ default: false })
   is_mobile_service: boolean;
-
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
-  travel_charge_per_km: number;
 
   // Vehicle compatibility
   @Column({ type: 'enum', enum: VehicleType, array: true, nullable: true })
@@ -89,10 +85,6 @@ export class Service {
 
   @Column({ type: 'text', nullable: true })
   terms_and_conditions: string;
-
-  // Metrics
-  @Column({ default: 0 })
-  total_bookings: number;
 
   @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 })
   average_rating: number;
@@ -123,4 +115,8 @@ export class Service {
     nullable: true,
   })
   reviews: Relation<Review[]>;
+
+  @ManyToMany(() => CarWashLocation, (location) => location.services)
+  @JoinTable()
+  locations: Relation<CarWashLocation[]>;
 }

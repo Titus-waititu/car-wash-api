@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
+import { CarWashLocation } from 'src/car-wash-location/entities/car-wash-location.entity';
 
 export enum BookingStatus {
   PENDING = 'pending',
@@ -95,4 +96,11 @@ export class Booking {
     nullable: true,
   })
   payment: Relation<Payment>;
+
+  @ManyToOne(() => CarWashLocation, (location) => location.bookings, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn()
+  location: Relation<CarWashLocation>;
 }

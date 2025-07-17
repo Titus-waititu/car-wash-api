@@ -16,5 +16,6 @@ import { Fleet } from 'src/fleet/entities/fleet.entity';
   ],
   controllers: [BookingsController],
   providers: [BookingsService],
+  exports: [BookingsService],
 })
 export class BookingsModule {}

@@ -8,11 +8,12 @@
 ### ========== USERS ==========
 
 ### Get all users
-GET {{baseUrl}}/bookings
+GET {{baseUrl}}/locations
 Authorization: Bearer {{AccessToken}}
 
 ### Create a new user
 POST {{baseUrl}}/users
+Authorization: Bearer {{AccessToken}}
 Content-Type: {{contentType}}
 
 {
@@ -24,10 +25,11 @@ Content-Type: {{contentType}}
 
 ### Create a new user
 POST {{baseUrl}}/users
+Authorization: Bearer {{AccessToken}}
 Content-Type: {{contentType}}
 
 {
-  "username": "Titus waititu",
+  "username": "admin",
   "email": "andreastailas96@gmail.com",
   "password": "12345678",
   "phone_number": "1234567890"
@@ -124,6 +126,7 @@ Content-Type: {{contentType}}
 
 ### Get all bookings
 GET {{baseUrl}}/bookings
+Authorization: Bearer {{AccessToken}}
 
 ### Get bookings by status
 GET {{baseUrl}}/bookings?status=pending
@@ -160,7 +163,8 @@ Content-Type: {{contentType}}
 }
 
 ### Delete booking
-DELETE {{baseUrl}}/services/3918f3f8-529d-4522-9e81-87d37f9c7256
+DELETE {{baseUrl}}/bookings/dc58cb7d-4c71-4d0f-bf5c-9e4ddba95037
+Authorization: Bearer {{AccessToken}}
 
 ### ========== FLEET ==========
 
@@ -614,7 +618,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{AccessToken}}
 
 {
-  "bookingId": "591ff6fb-e8c9-456d-9c26-42e0084bac84",
+  "bookingId": "a6ff2c9b-02ac-44cf-a404-f446c748eed7",
   "email": "european.customer@example.com",
   "amount": 2000,
   "currency": "eur"
@@ -791,3 +795,391 @@ Authorization: Bearer {{AccessToken}}
 
 ### Access Swagger Documentation
 GET {{baseUrl}}/api/docs
+
+### ========== CHATBOT TESTS ==========
+
+### Test Greeting
+POST {{baseUrl}}/chatbot/chat
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "query": "Hello! How are you today?",
+  "userId": "8c3f987c-823e-4614-aa13-52c2ab2bf063"
+}
+
+###
+
+### Test Service Inquiry - General
+POST {{baseUrl}}/chatbot/chat
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "query": "What car wash ?",
+  "userId": "8c3f987c-823e-4614-aa13-52c2ab2bf063"
+}
+
+###
+
+### Test Service Inquiry - Specific
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Do you have car detailing services? I need a full interior cleaning.",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Pricing Inquiry
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "How much does a basic car wash cost? Do you have any packages?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Location Inquiry
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Where are your car wash locations? I need to find one near downtown.",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Booking Inquiry - With User ID
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "What are my current bookings? When is my next appointment?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Booking Inquiry - Without User ID
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I want to check my booking status. Can you help me?"
+}
+
+###
+
+### Test Reviews Inquiry
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "What do customers say about your service? Show me some reviews.",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Fleet Management Inquiry
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I want to add a new vehicle to my account. How do I do that?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Payment Inquiry
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Can you show me my payment history? What payment methods do you accept?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Account Management
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I need to update my profile information. How can I change my phone number?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Help Request
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I need help. What can you assist me with?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Complex Service Question
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "My car is really dirty after a road trip. I need exterior wash, interior cleaning, and maybe waxing. What's the best service package for me and how much would it cost?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Booking Process Question
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "How do I book an appointment? Can I schedule for this weekend?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Cancellation Question
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I need to cancel my upcoming booking. How can I do that?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Business Hours Question
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "What are your business hours? Are you open on weekends?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Anonymous User Query
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I'm interested in your car wash services. Can you tell me about your packages and pricing?"
+}
+
+###
+
+### Test Gibberish/Unknown Query
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "asdfghjkl qwerty random text that doesn't make sense",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Multiple Intent Query
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Hi! I want to know your prices, find a location near me, and also check my booking status. Can you help with all of that?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+### ========== CHATBOT CONVERSATION MANAGEMENT ==========
+
+### Get Conversation by Session ID
+GET {{baseUrl}}/chatbot/conversation/session_123456789
+Authorization: Bearer {{AccessToken}}
+
+###
+
+### Get User Conversations
+GET {{baseUrl}}/chatbot/user/bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527/conversations
+Authorization: Bearer {{AccessToken}}
+
+###
+
+### Get All Conversations (Admin)
+GET {{baseUrl}}/chatbot
+Authorization: Bearer {{AccessToken}}
+
+###
+
+### Get Specific Conversation by ID
+GET {{baseUrl}}/chatbot/conversation-id-here
+Authorization: Bearer {{AccessToken}}
+
+### ========== CHATBOT EDGE CASES ==========
+
+### Test Empty Query
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Very Long Query
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "I have a very specific question about your car wash services and I want to know everything about pricing, locations, booking process, what services you offer, payment methods, cancellation policies, business hours, staff training, environmental policies, customer satisfaction ratings, loyalty programs, group discounts, fleet services, mobile services, and anything else you can tell me about your business because I'm really interested in becoming a regular customer and want to make an informed decision",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Special Characters Query
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Hi! I'm looking for car wash services 🚗💦. Do you offer premium packages? What's the cost? 💰",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Case Sensitivity
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "WHAT ARE YOUR SERVICES? HOW MUCH DO THEY COST?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+### Test Mixed Language (if applicable)
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Hello, je veux laver ma voiture. What services do you have?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+### ========== CHATBOT PERFORMANCE TESTS ==========
+
+### Test Rapid Fire Questions (simulate conversation)
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Hi there!",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "What services do you offer?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "How much for a basic wash?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Where are you located?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Can I book now?",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+###
+
+POST {{baseUrl}}/chatbot/chat
+Content-Type: {{contentType}}
+
+{
+  "query": "Thank you!",
+  "userId": "bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527"
+}
+
+### ========== CHATBOT TEST SCENARIOS ==========
+
+# Test Scenario 1: New Customer Journey
+# 1. Greeting and initial inquiry
+# 2. Service information request
+# 3. Pricing inquiry
+# 4. Location search
+# 5. Booking process question
+
+# Test Scenario 2: Existing Customer Support
+# 1. Login and account access
+# 2. Booking status check
+# 3. Modification request
+# 4. Payment inquiry
+# 5. Review submission
+
+# Test Scenario 3: Business Owner/Fleet Manager
+# 1. Fleet management questions
+# 2. Bulk service pricing
+# 3. Regular scheduling
+# 4. Account management
+# 5. Business reporting
+
+### ========== CHATBOT RESPONSE VALIDATION ==========
+
+# Expected Response Elements:
+# - response: String containing AI-generated response
+# - suggestions: Array of follow-up action suggestions
+# - data: Object containing relevant data (optional)
+# - conversationId: Unique conversation identifier
+
+# Success Criteria:
+# ✅ Response is relevant to the query
+# ✅ Suggestions are contextually appropriate
+# ✅ Data matches the query intent
+# ✅ Response time < 3 seconds
+# ✅ No errors in response format
+# ✅ Proper handling of authenticated vs anonymous users

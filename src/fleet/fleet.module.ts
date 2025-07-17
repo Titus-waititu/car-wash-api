@@ -7,8 +7,9 @@ import { Fleet } from './entities/fleet.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @Module({
-  imports: [DatabaseModule,TypeOrmModule.forFeature([Fleet,User])], 
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Fleet, User])],
   controllers: [FleetController],
   providers: [FleetService],
+  exports: [FleetService],
 })
 export class FleetModule {}

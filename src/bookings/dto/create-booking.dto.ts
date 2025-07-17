@@ -45,4 +45,8 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   vehicleId?: string;
+
+  @IsOptional()
+  @IsString()
+  locationId?: string;
 }

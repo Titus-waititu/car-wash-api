@@ -3,6 +3,7 @@ import { Fleet } from 'src/fleet/entities/fleet.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Service } from 'src/services/entities/service.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
+import { CarWashLocation } from 'src/car-wash-location/entities/car-wash-location.entity';
 import { ServiceProviderStatus, UserRole } from 'src/types';
 import {
   Entity,
@@ -11,6 +12,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
+  Relation,
 } from 'typeorm';
 
 @Entity()
@@ -36,7 +39,7 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
 
-  // Location fields for location-based service discovery
+  // 📍 Location-based fields for discovery
   @Column({ nullable: true })
   address: string;
 
@@ -60,7 +63,7 @@ export class User {
   @Column({ nullable: true })
   postal_code: string;
 
-  // Vendor-specific fields
+  // 🧼 Vendor-specific fields
   @Column({ nullable: true })
   business_name: string;
 
@@ -82,11 +85,7 @@ export class User {
   @Column({ type: 'text', nullable: true, default: null })
   hashedRefreshToken: string | null;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
   @UpdateDateColumn({
@@ -96,18 +95,26 @@ export class User {
   })
   updated_at: Date;
 
+  // 📦 Relations
   @OneToMany(() => Booking, (booking) => booking.user)
-  bookings: Booking[];
+  bookings: Relation<Booking[]>;
 
   @OneToMany(() => Service, (service) => service.user)
-  services: Service[];
+  services: Relation<Service[]>;
 
   @OneToMany(() => Review, (review) => review.user)
-  reviews: Review[];
+  reviews: Relation<Review[]>;
 
   @OneToMany(() => Fleet, (fleet) => fleet.user)
-  fleetVehicles: Fleet[];
+  fleetVehicles: Relation<Fleet[]>;
 
   @OneToMany(() => Notification, (notification) => notification.recipient)
-  notifications: Notification[];
+  notifications: Relation<Notification[]>;
+
+  // 🔗 Vendor’s primary location (optional)
+  @ManyToOne(() => CarWashLocation, (location) => location.vendors, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  location: Relation<CarWashLocation>;
 }

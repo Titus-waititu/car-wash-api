@@ -11,5 +11,6 @@ import { Service } from 'src/services/entities/service.entity';
   imports: [DatabaseModule, TypeOrmModule.forFeature([Review, User, Service])],
   controllers: [ReviewsController],
   providers: [ReviewsService],
+  exports: [ReviewsService],
 })
 export class ReviewsModule {}

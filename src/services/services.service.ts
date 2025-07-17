@@ -42,13 +42,13 @@ export class ServicesService {
           { name: ILike(`%${cleanedSearch}%`) },
           { description: ILike(`%${cleanedSearch}%`) },
         ],
-        relations: ['user','reviews'],
+        relations: ['user','reviews','locations','bookings'],
         order: { created_at: 'DESC' },
       });
     }
 
     return await this.serviceRepository.find({
-      relations: ['user','reviews','bookings'],
+      relations: ['user','reviews','bookings','locations'],
       order: { created_at: 'DESC' },
     });
   }
@@ -56,7 +56,7 @@ export class ServicesService {
   async findOne(id: string): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id },
-      relations: ['user', 'bookings','reviews'],
+      relations: ['user', 'bookings','reviews', 'locations'],
     });
 
     if (!service) {

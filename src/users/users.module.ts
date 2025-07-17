@@ -10,9 +10,12 @@ import { Review } from 'src/reviews/entities/review.entity';
 import { Fleet } from 'src/fleet/entities/fleet.entity';
 
 @Module({
-  imports: [DatabaseModule,TypeOrmModule.forFeature([User,Booking,Service,Review,Fleet])],
+  imports: [
+    DatabaseModule,
+    TypeOrmModule.forFeature([User, Booking, Service, Review, Fleet]),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports:[TypeOrmModule]
+  exports: [TypeOrmModule, UsersService],
 })
 export class UsersModule {}

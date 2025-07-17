@@ -8,8 +8,9 @@ import { User } from 'src/users/entities/user.entity';
 import { Booking } from 'src/bookings/entities/booking.entity';
 
 @Module({
-  imports: [DatabaseModule,TypeOrmModule.forFeature([Service,User,Booking])], 
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Service, User, Booking])],
   controllers: [ServicesController],
   providers: [ServicesService],
+  exports: [ServicesService],
 })
 export class ServicesModule {}

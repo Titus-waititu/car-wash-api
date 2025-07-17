@@ -16,6 +16,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AtGuard } from './auth/guards/at.guard';
 import { LoggerMiddleware } from 'logger.middleware';
+import { CarWashLocationModule } from './car-wash-location/car-wash-location.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
   imports: [
@@ -47,6 +49,8 @@ import { LoggerMiddleware } from 'logger.middleware';
         },
       ],
     }),
+    CarWashLocationModule,
+    ChatbotModule,
     // CacheModule.registerAsync({
     //   imports: [ConfigModule],
     //   inject: [ConfigService],

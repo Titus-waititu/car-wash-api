@@ -33,11 +33,16 @@ export class UsersService {
       throw new Error('User with this email already exists');
     }
     try {
-      const hashedPassword = await this.hashPassword(createUserDto.password);
+      if(createUserDto.password){
+        const hashedPassword = await this.hashPassword(createUserDto.password);
       const newUser = this.usersRepository.create({
         ...createUserDto,
         password: hashedPassword,
       });
+      const savedUser = await this.usersRepository.save(newUser);
+      return this.sanitizeUser(savedUser);
+      }
+      const newUser = this.usersRepository.create(createUserDto);
       const savedUser = await this.usersRepository.save(newUser);
       return this.sanitizeUser(savedUser);
     } catch (error) {

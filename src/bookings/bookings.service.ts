@@ -76,6 +76,7 @@ export class BookingsService {
       .leftJoinAndSelect('booking.service', 'service')
       .leftJoinAndSelect('service.user', 'serviceProvider')
       .leftJoinAndSelect('service.reviews', 'serviceReviews')
+      .leftJoinAndSelect('service.locations', 'location')
       .leftJoinAndSelect('serviceReviews.user', 'reviewUser')
       .leftJoinAndSelect('booking.payment', 'payment')
       .leftJoinAndSelect('booking.vehicle', 'vehicle')
@@ -96,6 +97,7 @@ export class BookingsService {
         'service',
         'service.user',
         'service.reviews',
+        'service.locations',
         'service.reviews.user',
         'payment',
         'vehicle',
@@ -168,6 +170,7 @@ export class BookingsService {
         'service',
         'service.user',
         'service.reviews',
+        'service.locations',
         'service.reviews.user',
         'payment',
         'vehicle',
@@ -184,6 +187,7 @@ export class BookingsService {
         'service',
         'service.user',
         'service.reviews',
+        'service.locations',
         'service.reviews.user',
         'payment',
         'vehicle',
@@ -200,6 +204,7 @@ export class BookingsService {
         'service',
         'service.user',
         'service.reviews',
+        'service.locations',
         'service.reviews.user',
         'payment',
         'vehicle',

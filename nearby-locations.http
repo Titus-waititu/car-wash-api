@@ -1,0 +1,15 @@
+### Get Nearby Car Wash Locations
+
+# Test the nearby locations endpoint with the exact syntax you requested
+GET http://localhost:8080/locations/nearby?latitude=-0.5635728&longitude=37.3272709&radius=50
+
+### Additional test cases
+
+# Get nearby locations with default radius (10km)
+GET http://localhost:8080/locations/nearby?latitude=-0.5635728&longitude=37.3272709
+
+# Get nearby locations with a smaller radius (5km)
+GET http://localhost:8080/locations/nearby?latitude=-0.5635728&longitude=37.3272709&radius=5
+
+# Get nearby locations with a larger radius (100km)
+GET http://localhost:8080/locations/nearby?latitude=-0.5635728&longitude=37.3272709&radius=100

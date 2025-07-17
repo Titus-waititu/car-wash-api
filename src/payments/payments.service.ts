@@ -331,6 +331,7 @@ export class PaymentsService {
           initializeDto.email,
           metadata,
         );
+        console.log('stripeResponse:', stripeResponse);
 
         payment = await this.create({
           amount: initializeDto.amount || booking.total_amount,
@@ -343,7 +344,6 @@ export class PaymentsService {
         payment.stripe_session_id = stripeResponse.id;
         payment.stripe_payment_intent_id = stripeResponse.payment_intent;
         await this.paymentRepository.save(payment);
-
         return {
           sessionUrl: stripeResponse.url,
           payment,
@@ -378,6 +378,7 @@ export class PaymentsService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    
   }
 
   async verifyStripePayment(
