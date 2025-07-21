@@ -1,0 +1,63 @@
+### Invoice Management API Tests
+
+### Variables
+@baseUrl = http://localhost:3000
+
+### 1. Create Invoice
+POST {{baseUrl}}/invoice
+Content-Type: application/json
+
+{
+  "booking_id": "your-booking-uuid-here",
+  "customer_id": "your-customer-uuid-here",
+  "tax_amount": 5.00,
+  "due_date": "2025-08-21",
+  "notes": "Car wash service invoice"
+}
+
+### 2. Get All Invoices
+GET {{baseUrl}}/invoice
+
+### 3. Get Invoices for Specific Customer
+GET {{baseUrl}}/invoice?customerId=your-customer-uuid-here
+
+### 4. Get Invoice Statistics
+GET {{baseUrl}}/invoice/stats
+
+### 5. Get Overdue Invoices
+GET {{baseUrl}}/invoice/overdue
+
+### 6. Update Overdue Invoice Statuses
+PATCH {{baseUrl}}/invoice/overdue/update
+
+### 7. Get Invoice by Invoice Number
+GET {{baseUrl}}/invoice/number/INV-202507-0001
+
+### 8. Get Invoice by Booking ID
+GET {{baseUrl}}/invoice/booking/your-booking-uuid-here
+
+### 9. Get Invoice by ID
+GET {{baseUrl}}/invoice/your-invoice-uuid-here
+
+### 10. Update Invoice
+PATCH {{baseUrl}}/invoice/your-invoice-uuid-here
+Content-Type: application/json
+
+{
+  "tax_amount": 7.50,
+  "notes": "Updated invoice with additional tax"
+}
+
+### 11. Mark Invoice as Sent (sends email to customer)
+PATCH {{baseUrl}}/invoice/your-invoice-uuid-here/send
+
+### 12. Mark Invoice as Paid
+PATCH {{baseUrl}}/invoice/your-invoice-uuid-here/paid
+Content-Type: application/json
+
+{
+  "paymentId": "your-payment-uuid-here"
+}
+
+### 13. Delete Invoice
+DELETE {{baseUrl}}/invoice/your-invoice-uuid-here

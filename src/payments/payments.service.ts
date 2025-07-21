@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { InitializeMpesaPaymentDto } from './dto/initialize-mpesa-payment.dto';
@@ -15,6 +21,7 @@ import { Booking } from '../bookings/entities/booking.entity';
 import { PaymentStatus, PaymentMethod } from '../types';
 import { MpesaService } from './services/mpesa.service';
 import { StripeService } from './services/stripe.service';
+import { InvoiceService } from '../invoice/invoice.service';
 
 @Injectable()
 export class PaymentsService {
@@ -26,6 +33,8 @@ export class PaymentsService {
     private configService: ConfigService,
     private mpesaService: MpesaService,
     private stripeService: StripeService,
+    @Inject(forwardRef(() => InvoiceService))
+    private invoiceService: InvoiceService,
   ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
@@ -194,6 +203,11 @@ export class PaymentsService {
       );
     }
 
+    // If payment is already completed, return it without processing
+    if (payment.status === PaymentStatus.COMPLETED) {
+      return payment;
+    }
+
     try {
       // Query M-Pesa transaction status
       const queryResponse = await this.mpesaService.queryStkStatus(
@@ -205,17 +219,31 @@ export class PaymentsService {
         payment.status = PaymentStatus.COMPLETED;
         payment.paid_at = new Date();
 
-        // Update booking status
-        if (payment.booking) {
+        // Update booking status if not already confirmed
+        if (payment.booking && payment.booking.status !== 'confirmed') {
           payment.booking.status = 'confirmed' as any;
           await this.bookingRepository.save(payment.booking);
         }
+
+        // Save payment first
+        const updatedPayment = await this.paymentRepository.save(payment);
+
+        // Handle invoice creation/update
+        try {
+          await this.invoiceService.handlePaymentCompleted(updatedPayment.id);
+        } catch (error) {
+          console.error(
+            'Failed to handle invoice for completed payment:',
+            error,
+          );
+        }
+
+        return updatedPayment;
       } else {
         payment.status = PaymentStatus.FAILED;
         payment.failure_reason = queryResponse.ResultDesc;
+        return await this.paymentRepository.save(payment);
       }
-
-      return await this.paymentRepository.save(payment);
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to verify M-Pesa payment',
@@ -247,24 +275,43 @@ export class PaymentsService {
         return { status: 'payment_not_found' };
       }
 
+      // If payment is already completed, return success without processing
+      if (payment.status === PaymentStatus.COMPLETED) {
+        return { status: 'success', payment };
+      }
+
       // Update payment based on callback
       if (processedCallback.resultCode === '0') {
         payment.status = PaymentStatus.COMPLETED;
         payment.paid_at = new Date();
         payment.mpesa_receipt_number = processedCallback.mpesaReceiptNumber;
 
-        // Update booking status
-        if (payment.booking) {
+        // Update booking status if not already confirmed
+        if (payment.booking && payment.booking.status !== 'confirmed') {
           payment.booking.status = 'confirmed' as any;
           await this.bookingRepository.save(payment.booking);
         }
+
+        // Save payment first
+        const updatedPayment = await this.paymentRepository.save(payment);
+
+        // Handle invoice creation/update
+        try {
+          await this.invoiceService.handlePaymentCompleted(updatedPayment.id);
+        } catch (error) {
+          console.error(
+            'Failed to handle invoice for completed payment:',
+            error,
+          );
+        }
+
+        return { status: 'success', payment: updatedPayment };
       } else {
         payment.status = PaymentStatus.FAILED;
         payment.failure_reason = processedCallback.resultDesc;
+        const updatedPayment = await this.paymentRepository.save(payment);
+        return { status: 'success', payment: updatedPayment };
       }
-
-      const updatedPayment = await this.paymentRepository.save(payment);
-      return { status: 'success', payment: updatedPayment };
     } catch (error) {
       console.error('M-Pesa callback processing error:', error);
       return { status: 'error' };
@@ -378,7 +425,6 @@ export class PaymentsService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    
   }
 
   async verifyStripePayment(
@@ -398,6 +444,11 @@ export class PaymentsService {
         'Payment not found for the provided session ID',
         HttpStatus.NOT_FOUND,
       );
+    }
+
+    // If payment is already completed, return it without processing
+    if (payment.status === PaymentStatus.COMPLETED) {
+      return payment;
     }
 
     try {
@@ -431,12 +482,31 @@ export class PaymentsService {
       }
 
       // Update booking status if payment successful
-      if (payment.status === PaymentStatus.COMPLETED && payment.booking) {
+      if (
+        payment.status === PaymentStatus.COMPLETED &&
+        payment.booking &&
+        payment.booking.status !== 'confirmed'
+      ) {
         payment.booking.status = 'confirmed' as any;
         await this.bookingRepository.save(payment.booking);
       }
 
-      return await this.paymentRepository.save(payment);
+      // Save payment first
+      const updatedPayment = await this.paymentRepository.save(payment);
+
+      // Handle invoice creation/update for completed payments
+      if (payment.status === PaymentStatus.COMPLETED) {
+        try {
+          await this.invoiceService.handlePaymentCompleted(updatedPayment.id);
+        } catch (error) {
+          console.error(
+            'Failed to handle invoice for completed payment:',
+            error,
+          );
+        }
+      }
+
+      return updatedPayment;
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to verify Stripe payment',
@@ -468,16 +538,33 @@ export class PaymentsService {
         });
 
         if (payment) {
+          // If payment is already completed, return success without processing
+          if (payment.status === PaymentStatus.COMPLETED) {
+            return { status: 'success', payment };
+          }
+
           payment.status = PaymentStatus.COMPLETED;
           payment.paid_at = new Date();
 
           // Update booking status
-          if (payment.booking) {
+          if (payment.booking && payment.booking.status !== 'confirmed') {
             payment.booking.status = 'confirmed' as any;
             await this.bookingRepository.save(payment.booking);
           }
 
+          // Save payment first
           const updatedPayment = await this.paymentRepository.save(payment);
+
+          // Handle invoice creation/update
+          try {
+            await this.invoiceService.handlePaymentCompleted(updatedPayment.id);
+          } catch (error) {
+            console.error(
+              'Failed to handle invoice for completed payment:',
+              error,
+            );
+          }
+
           return { status: 'success', payment: updatedPayment };
         }
       } else if (processedEvent.type === 'payment_failed') {

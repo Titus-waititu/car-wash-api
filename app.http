@@ -1183,3 +1183,299 @@ Content-Type: {{contentType}}
 # ✅ Response time < 3 seconds
 # ✅ No errors in response format
 # ✅ Proper handling of authenticated vs anonymous users
+
+### ========== INVOICE MANAGEMENT ==========
+
+@sampleUserId = bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
+@sampleBookingId = 123e4567-e89b-12d3-a456-426614174000
+@sampleInvoiceId = 456e7890-e89b-12d3-a456-426614174111
+@samplePaymentId = 789e0123-e89b-12d3-a456-426614174222
+
+### 1. Create Invoice - Basic
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": 5.50,
+  "due_date": "2025-08-21T10:00:00.000Z",
+  "notes": "Standard car wash service - Premium package"
+}
+
+### 2. Create Invoice - Minimal (no tax, auto due date)
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}"
+}
+
+### 3. Create Invoice - With High Tax
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "612feb4b-70b3-48f1-84ac-8de18bdbfd9e",
+  "userId": "8c3f987c-823e-4614-aa13-52c2ab2bf063",
+  "tax_amount": 12.75,
+  "due_date": "2025-09-15T23:59:59.000Z",
+  "notes": "Luxury detailing service with premium products. Includes ceramic coating and interior protection."
+}
+
+### 4. Get All Invoices
+GET {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+
+### 5. Get Invoices for Specific Customer
+GET {{baseUrl}}/invoice?customerId={{sampleUserId}}
+Authorization: Bearer {{AccessToken}}
+
+### 6. Get Invoice Statistics
+GET {{baseUrl}}/invoice/stats
+Authorization: Bearer {{AccessToken}}
+
+### 7. Get Overdue Invoices
+GET {{baseUrl}}/invoice/overdue
+Authorization: Bearer {{AccessToken}}
+
+### 8. Update Overdue Invoice Statuses (Admin Action)
+PATCH {{baseUrl}}/invoice/overdue/update
+Authorization: Bearer {{AccessToken}}
+
+### 9. Get Invoice by Invoice Number
+GET {{baseUrl}}/invoice/number/INV-202507-0001
+Authorization: Bearer {{AccessToken}}
+
+### 10. Get Invoice by Booking ID
+GET {{baseUrl}}/invoice/booking/{{sampleBookingId}}
+Authorization: Bearer {{AccessToken}}
+
+### 11. Get Invoice by ID
+GET {{baseUrl}}/invoice/{{sampleInvoiceId}}
+Authorization: Bearer {{AccessToken}}
+
+### 12. Update Invoice - Change Tax Amount
+PATCH {{baseUrl}}/invoice/{{sampleInvoiceId}}
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "tax_amount": 8.25,
+  "notes": "Updated invoice with revised tax calculation"
+}
+
+### 13. Update Invoice - Change Due Date
+PATCH {{baseUrl}}/invoice/{{sampleInvoiceId}}
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "due_date": "2025-08-30T23:59:59.000Z",
+  "notes": "Extended payment terms due to customer request"
+}
+
+### 14. Update Invoice - Change Status to OVERDUE
+PATCH {{baseUrl}}/invoice/{{sampleInvoiceId}}
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "status": "overdue"
+}
+
+### 15. Mark Invoice as Sent (Triggers Email)
+PATCH {{baseUrl}}/invoice/{{sampleInvoiceId}}/send
+Authorization: Bearer {{AccessToken}}
+
+### 16. Mark Invoice as Paid - Without Payment Link
+PATCH {{baseUrl}}/invoice/{{sampleInvoiceId}}/paid
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{}
+
+### 17. Mark Invoice as Paid - With Payment Link
+PATCH {{baseUrl}}/invoice/{{sampleInvoiceId}}/paid
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "paymentId": "{{samplePaymentId}}"
+}
+
+### 18. Delete Invoice
+DELETE {{baseUrl}}/invoice/{{sampleInvoiceId}}
+Authorization: Bearer {{AccessToken}}
+
+### ========== INVOICE TEST SCENARIOS ==========
+
+### Scenario 1: Complete Invoice Lifecycle
+# Step 1: Create invoice
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": 7.50,
+  "due_date": "2025-08-25T10:00:00.000Z",
+  "notes": "Full-service car wash with wax and tire shine"
+}
+
+### Step 2: Send invoice to customer (use invoice ID from Step 1 response)
+# PATCH {{baseUrl}}/invoice/{INVOICE_ID_FROM_STEP_1}/send
+
+### Step 3: Mark as paid (use invoice ID from Step 1 response)
+# PATCH {{baseUrl}}/invoice/{INVOICE_ID_FROM_STEP_1}/paid
+
+### Scenario 2: Bulk Invoice Creation for Testing
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": 3.25,
+  "due_date": "2025-07-25T10:00:00.000Z",
+  "notes": "Basic wash - Economy package"
+}
+
+###
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": 15.00,
+  "due_date": "2025-09-01T10:00:00.000Z",
+  "notes": "Premium detailing - Luxury package with ceramic coating"
+}
+
+###
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": 0.00,
+  "due_date": "2025-07-20T10:00:00.000Z",
+  "notes": "Express wash - No tax promotional offer"
+}
+
+### Scenario 3: Error Testing
+
+### Test: Create invoice with invalid booking ID
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "invalid-booking-id",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": 5.00
+}
+
+### Test: Create invoice with invalid user ID
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "invalid-user-id",
+  "tax_amount": 5.00
+}
+
+### Test: Create invoice with negative tax
+POST {{baseUrl}}/invoice
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "bookingId": "{{sampleBookingId}}",
+  "userId": "{{sampleUserId}}",
+  "tax_amount": -5.00
+}
+
+### Test: Get non-existent invoice
+GET {{baseUrl}}/invoice/non-existent-invoice-id
+Authorization: Bearer {{AccessToken}}
+
+### Test: Update non-existent invoice
+PATCH {{baseUrl}}/invoice/non-existent-invoice-id
+Authorization: Bearer {{AccessToken}}
+Content-Type: {{contentType}}
+
+{
+  "tax_amount": 10.00
+}
+
+### ========== INVOICE ANALYTICS TESTING ==========
+
+### Get comprehensive invoice statistics
+GET {{baseUrl}}/invoice/stats
+Authorization: Bearer {{AccessToken}}
+
+### Filter invoices by date range (if implemented)
+# GET {{baseUrl}}/invoice?startDate=2025-07-01&endDate=2025-07-31
+
+### Get invoices sorted by amount (if implemented)
+# GET {{baseUrl}}/invoice?sortBy=total_amount&order=desc
+
+### Get recent invoices (if implemented)
+# GET {{baseUrl}}/invoice?limit=10&offset=0
+
+### ========== EXPECTED RESPONSES ==========
+
+# Create Invoice Success Response:
+# {
+#   "id": "uuid",
+#   "invoice_number": "INV-202507-0001",
+#   "amount": 25.00,
+#   "tax_amount": 5.50,
+#   "total_amount": 30.50,
+#   "status": "pending",
+#   "due_date": "2025-08-21T10:00:00.000Z",
+#   "notes": "Standard car wash service - Premium package",
+#   "created_at": "2025-07-21T...",
+#   "updated_at": "2025-07-21T...",
+#   "booking": { ... },
+#   "user": { ... }
+# }
+
+# Invoice Statistics Response:
+# {
+#   "total_invoices": 150,
+#   "paid_invoices": 120,
+#   "pending_invoices": 25,
+#   "overdue_invoices": 5,
+#   "total_revenue": 15750.50
+# }
+
+# Send Invoice Success Response:
+# {
+#   "id": "uuid",
+#   "status": "sent",
+#   "sent_at": "2025-07-21T...",
+#   ...
+# }
+
+# Mark as Paid Success Response:
+# {
+#   "id": "uuid",
+#   "status": "paid",
+#   "paid_at": "2025-07-21T...",
+#   "payment": { ... },
+#   ...
+# }

@@ -19,6 +19,7 @@ import { LoggerMiddleware } from 'logger.middleware';
 import { CarWashLocationModule } from './car-wash-location/car-wash-location.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { MailModule } from './mail/mail.module';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { MailModule } from './mail/mail.module';
     CarWashLocationModule,
     ChatbotModule,
     MailModule,
+    InvoiceModule,
     // CacheModule.registerAsync({
     //   imports: [ConfigModule],
     //   inject: [ConfigService],

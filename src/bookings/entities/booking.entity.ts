@@ -2,6 +2,7 @@ import { Payment } from 'src/payments/entities/payment.entity';
 import { Service } from 'src/services/entities/service.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Fleet } from 'src/fleet/entities/fleet.entity';
+import { Invoice } from 'src/invoice/entities/invoice.entity';
 import {
   Column,
   Entity,
@@ -17,6 +18,7 @@ export enum BookingStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
   COMPLETED = 'completed',
+  IN_PROGRESS = 'in_progress',
   CANCELLED = 'cancelled',
 }
 
@@ -38,7 +40,7 @@ export class Booking {
   @Column({ type: 'text', nullable: true })
   special_instructions: string;
 
-  @Column({default: false})
+  @Column({ default: false })
   is_recurring: boolean;
 
   // Optional internal notes for service providers
@@ -96,6 +98,12 @@ export class Booking {
     nullable: true,
   })
   payment: Relation<Payment>;
+
+  @OneToOne(() => Invoice, (invoice) => invoice.booking, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  invoice: Relation<Invoice>;
 
   @ManyToOne(() => CarWashLocation, (location) => location.bookings, {
     onDelete: 'SET NULL',
