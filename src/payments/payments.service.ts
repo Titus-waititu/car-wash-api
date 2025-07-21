@@ -308,7 +308,7 @@ export class PaymentsService {
 
     const amount = this.stripeService.convertToStripeAmount(
       initializeDto.amount || booking.total_amount,
-      initializeDto.currency || 'usd',
+      initializeDto.currency || 'kes',
     );
 
     try {
@@ -325,7 +325,7 @@ export class PaymentsService {
         // Create checkout session for hosted payment page
         stripeResponse = await this.stripeService.createCheckoutSession(
           amount,
-          initializeDto.currency || 'usd',
+          initializeDto.currency || 'kes',
           initializeDto.successUrl,
           initializeDto.cancelUrl,
           initializeDto.email,
@@ -352,7 +352,7 @@ export class PaymentsService {
         // Create payment intent for custom payment flow
         stripeResponse = await this.stripeService.createPaymentIntent(
           amount,
-          initializeDto.currency || 'usd',
+          initializeDto.currency || 'kes',
           metadata,
         );
 

@@ -16,6 +16,8 @@ import { Request, Response } from 'express';
 import { RtGuard } from './guards/rt.guard';
 import { GoogleOauthGuard } from './guards/google.oauth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ForgotPasswordDto } from './dto/forgotpassword.dto';
+import { ResetPasswordDto } from './dto/resetpassword.dto';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -99,5 +101,21 @@ export class AuthController {
       email: req.user['email'],
       role: req.user['role'],
     };
+  }
+
+  @Post('forgot-password')
+  @Public()
+  async forgotPassword(
+    @Body() forgotPassword: ForgotPasswordDto,
+  ): Promise<string> {
+    return this.authService.forgotPassword(forgotPassword);
+  }
+
+  @Post('reset-password')
+  @Public()
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<string> {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

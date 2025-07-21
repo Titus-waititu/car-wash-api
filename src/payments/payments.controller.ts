@@ -54,7 +54,7 @@ export class PaymentsController {
   }
 
   @Get('statistics')
-  @Roles(UserRole.ADMIN, UserRole.VENDOR)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get payment statistics' })
   @ApiResponse({ status: 200, description: 'Payment statistics retrieved successfully.' })
   getStatistics() {
@@ -86,7 +86,7 @@ export class PaymentsController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.VENDOR)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update payment' })
   @ApiResponse({ status: 200, description: 'Payment updated successfully.' })
   update(
@@ -97,7 +97,7 @@ export class PaymentsController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Delete payment' })
   @ApiResponse({ status: 200, description: 'Payment deleted successfully.' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
@@ -113,7 +113,7 @@ export class PaymentsController {
   }
 
   @Post(':id/refund')
-  @Roles(UserRole.ADMIN, UserRole.VENDOR)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Refund completed payment' })
   @ApiResponse({ status: 200, description: 'Payment refunded successfully.' })
   refundPayment(
@@ -143,7 +143,7 @@ export class PaymentsController {
   }
 
   @Post('mpesa/callback')
-  @Public()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'M-Pesa callback endpoint (webhook)' })
   @ApiResponse({ status: 200, description: 'Callback processed successfully.' })
@@ -170,7 +170,7 @@ export class PaymentsController {
     return this.paymentsService.verifyStripePayment(verifyDto);
   }
   @Post('stripe/webhook')
-  @Public()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Stripe webhook endpoint' })
   @ApiHeader({ name: 'stripe-signature', required: true })
@@ -216,7 +216,7 @@ export class PaymentsController {
   }
 
   @Post('webhook')
-  @Public()
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Legacy: Payment webhook (Paystack)' })
   @ApiResponse({ status: 200, description: 'Webhook processed successfully.' })

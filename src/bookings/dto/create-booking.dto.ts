@@ -10,7 +10,6 @@ import {
 import { BookingStatus } from '../entities/booking.entity';
 
 export class CreateBookingDto {
-  @IsDateString()
   @IsNotEmpty()
   booking_time: Date;
 

@@ -18,6 +18,7 @@ import { AtGuard } from './auth/guards/at.guard';
 import { LoggerMiddleware } from 'logger.middleware';
 import { CarWashLocationModule } from './car-wash-location/car-wash-location.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ChatbotModule } from './chatbot/chatbot.module';
     }),
     CarWashLocationModule,
     ChatbotModule,
+    MailModule,
     // CacheModule.registerAsync({
     //   imports: [ConfigModule],
     //   inject: [ConfigService],

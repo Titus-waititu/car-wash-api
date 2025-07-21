@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,8 @@ import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import * as Bycrypt from 'bcrypt';
+import { ForgotPasswordDto } from './dto/forgotpassword.dto';
+import { ResetPasswordDto } from './dto/resetpassword.dto';
 
 @Injectable()
 export class AuthService {
@@ -207,4 +209,73 @@ export class AuthService {
     });
     return user;
   }
+
+  async generateResetToken(userId: string, email: string) {
+    return this.jwtService.sign(
+      { userId, email },
+      {
+        secret: this.configService.getOrThrow<string>('JWT_RESET_TOKEN_SECRET'),
+        expiresIn: this.configService.getOrThrow<string>(
+          'JWT_RESET_TOKEN_EXPIRATION_TIME',
+        ),
+      },
+    );
+  }
+
+  async verifyResetToken(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.getOrThrow<string>('JWT_RESET_TOKEN_SECRET'),
+      });
+      const decodedEmail = decoded.email;
+      const user = await this.usersRepository.findOne({
+        where: { email: decodedEmail },
+        select: ['id'],
+      });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      return user.id;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async updateUserPassword(userId: string, newPassword: string) {
+    const hashedPassword = await Bycrypt.hash(newPassword, 10);
+    await this.usersRepository.update(userId, { password: hashedPassword });
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<string> {
+    const { email } = forgotPasswordDto;
+    const user = await this.usersRepository.findOne({
+      where: { email },
+      select: ['email', 'id'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    const token = await this.generateResetToken(user.id, user.email);
+    // await this.sendResetEmail(email, token);
+    return token;
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
+    const { token, newPassword, confirmPassword } = resetPasswordDto;
+
+    if (newPassword !== confirmPassword) {
+      throw new NotFoundException('Passwords do not match');
+    }
+
+    const userId = await this.verifyResetToken(token);
+    if (!userId) {
+      throw new NotFoundException('Invalid or expired reset token');
+    }
+
+    await this.updateUserPassword(userId, newPassword);
+    return 'Password has been reset successfully';
+  }
+
 }
