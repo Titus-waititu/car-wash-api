@@ -4,14 +4,11 @@ import * as nodemailer from 'nodemailer';
 import 'dotenv/config';
 import { ConfigService } from '@nestjs/config';
 
-
 @Injectable()
 export class MailService {
-  constructor(
-    private readonly configService: ConfigService
-  ) {}
+  constructor(private readonly configService: ConfigService) {}
 
-   async sendMail(options: {
+  async sendMail(options: {
     to: string;
     subject: string;
     text?: string;
@@ -35,8 +32,6 @@ export class MailService {
 
     await transporter.sendMail(mailOptions);
   }
-
-
 
   async sendLoginSuccessEmail(email: string) {
     const transporter = nodemailer.createTransport({
@@ -104,21 +99,96 @@ export class MailService {
     return transporter.sendMail(mailOptions);
   }
 
-
-    async sendResetEmail(email: string, token: string) {
+  async sendResetEmail(email: string, token: string) {
     const resetLink = `http://localhost:8080/auth/reset-password?token=${token}`;
-    const subject = 'Reset Your Password';
-    const text = `To reset your password, please send a POST request to the following URL:\n\n${resetLink}\n\nIf you did not request a password reset, please ignore this email.`
-    const html = `<p>To reset your password, please send a POST request to the following URL:</p><p><a href="${resetLink}">${resetLink}</a></p><p>If you did not request a password reset, please ignore this email.</p>`;
-    
+    const subject = 'Reset Your Password - CarWash Service';
+    const text = `To reset your password, please use the following link:\n\n${resetLink}\n\nThis link will expire in 15 minutes.\n\nIf you did not request a password reset, please ignore this email.`;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        
+        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0;">
+          <p>Hello,</p>
+          <p>We received a request to reset the password for your CarWash Service account.</p>
+          <p>To reset your password, please click the button below:</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" 
+               style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Reset Password
+            </a>
+          </div>
+          
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="background-color: #f0f0f0; padding: 10px; border-radius: 3px; word-break: break-all;">
+            ${resetLink}
+          </p>
+        </div>
+
+        <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+          <p><strong>Security Information:</strong></p>
+          <ul>
+            <li>This link will expire in 15 minutes for security reasons</li>
+            <li>This link can only be used once</li>
+            <li>If you did not request this reset, please ignore this email</li>
+          </ul>
+        </div>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <p>Thank you for using CarWash Service!</p>
+          <p style="color: #666; font-size: 12px;">This is an automated email. Please do not reply.</p>
+        </div>
+      </div>
+    `;
+
     await this.sendMail({
       to: email,
       subject: subject,
       text: text,
       html: html,
     });
-    
+
     return `Reset password email sent to ${email}`;
   }
-  
+
+  async sendPasswordResetSuccessEmail(email: string) {
+    const subject = 'Password Reset Successful - CarWash Service';
+    const text =
+      'Your password has been successfully reset. If you did not make this change, please contact support immediately.';
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #28a745;">Password Reset Successful</h2>
+        
+        <div style="background-color: #d4edda; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
+          <p><strong>Your password has been successfully reset!</strong></p>
+          <p>This email confirms that your CarWash Service account password was changed.</p>
+        </div>
+
+        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0;">
+          <p><strong>Security Information:</strong></p>
+          <ul>
+            <li>Change Date: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</li>
+            <li>If you did not make this change, please contact support immediately</li>
+            <li>Consider enabling two-factor authentication for added security</li>
+          </ul>
+        </div>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <p>Thank you for keeping your account secure!</p>
+          <p style="color: #666; font-size: 12px;">This is an automated email. Please do not reply.</p>
+        </div>
+      </div>
+    `;
+
+    await this.sendMail({
+      to: email,
+      subject: subject,
+      text: text,
+      html: html,
+    });
+
+    return `Password reset confirmation email sent to ${email}`;
+  }
 }

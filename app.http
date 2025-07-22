@@ -64,9 +64,70 @@ Content-Type: {{contentType}}
   "password": "12345678"
 }
 
+### Login admin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "andreastailas96@gmail.com",
+  "password": "12345678"
+}
+
 ### Refresh token
 GET {{baseUrl}}/auth/refresh?id=bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
 Authorization: Bearer {{RefreshToken}}
+
+### Logout user
+POST {{baseUrl}}/auth/logout/bb8d2a1b-cc88-4a55-a9fc-7e3b2952c527
+Authorization: Bearer {{AccessToken}}
+
+### ========== PASSWORD RESET ==========
+
+### Request Password Reset
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "andreastailas96@gmail.com"
+}
+
+### Test Password Reset with Invalid Email
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "nonexistent@example.com"
+}
+
+### Reset Password (use token from email)
+POST {{baseUrl}}/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "token": "your-reset-token-from-email",
+  "newPassword": "newpassword123",
+  "confirmPassword": "newpassword123"
+}
+
+### Test Reset with Mismatched Passwords
+POST {{baseUrl}}/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "token": "your-reset-token-from-email",
+  "newPassword": "newpassword123",
+  "confirmPassword": "differentpassword456"
+}
+
+### Test Reset with Invalid Token
+POST {{baseUrl}}/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "token": "invalid-or-expired-token",
+  "newPassword": "newpassword123",
+  "confirmPassword": "newpassword123"
+}
 
 ### ========== SERVICES ==========
 

@@ -8,6 +8,7 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import * as Bycrypt from 'bcrypt';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     @InjectRepository(User) private usersRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   private async hashData(data: string): Promise<string> {
@@ -258,8 +260,8 @@ export class AuthService {
     }
 
     const token = await this.generateResetToken(user.id, user.email);
-    // await this.sendResetEmail(email, token);
-    return token;
+    await this.mailService.sendResetEmail(email, token);
+    return 'Password reset email sent successfully';
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
@@ -274,8 +276,26 @@ export class AuthService {
       throw new NotFoundException('Invalid or expired reset token');
     }
 
+    // Get user email for confirmation email
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: ['email'],
+    });
+
     await this.updateUserPassword(userId, newPassword);
+
+    // Send confirmation email
+    if (user?.email) {
+      try {
+        await this.mailService.sendPasswordResetSuccessEmail(user.email);
+      } catch (error) {
+        console.error(
+          'Failed to send password reset confirmation email:',
+          error,
+        );
+      }
+    }
+
     return 'Password has been reset successfully';
   }
-
 }
