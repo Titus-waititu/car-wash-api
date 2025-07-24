@@ -258,37 +258,37 @@ export class BookingsService {
     currentStatus: BookingStatus,
     newStatus: BookingStatus,
   ) {
-     const validTransitions: Record<BookingStatus, BookingStatus[]> = {
-    [BookingStatus.PENDING]: [
-      BookingStatus.CONFIRMED,
-      BookingStatus.CANCELLED,
-    ],
-    [BookingStatus.CONFIRMED]: [
-      BookingStatus.IN_PROGRESS,
-      BookingStatus.CANCELLED,
-      BookingStatus.COMPLETED, // Allow direct completion if needed
-    ],
-    [BookingStatus.IN_PROGRESS]: [
-      BookingStatus.COMPLETED,
-      BookingStatus.CANCELLED,
-      BookingStatus.CONFIRMED, // Allow going back to confirmed if needed
-    ],
-    [BookingStatus.COMPLETED]: [
-      BookingStatus.IN_PROGRESS, // Allow reopening completed bookings
-    ],
-    [BookingStatus.CANCELLED]: [
-      BookingStatus.PENDING, // Allow reactivating cancelled bookings
-      BookingStatus.CONFIRMED,
-    ],
-  };
+    const validTransitions: Record<BookingStatus, BookingStatus[]> = {
+      [BookingStatus.PENDING]: [
+        BookingStatus.CONFIRMED,
+        BookingStatus.CANCELLED,
+      ],
+      [BookingStatus.CONFIRMED]: [
+        BookingStatus.IN_PROGRESS,
+        BookingStatus.CANCELLED,
+        BookingStatus.COMPLETED, // Allow direct completion if needed
+      ],
+      [BookingStatus.IN_PROGRESS]: [
+        BookingStatus.COMPLETED,
+        BookingStatus.CANCELLED,
+        BookingStatus.CONFIRMED, // Allow going back to confirmed if needed
+      ],
+      [BookingStatus.COMPLETED]: [
+        BookingStatus.IN_PROGRESS, // Allow reopening completed bookings
+      ],
+      [BookingStatus.CANCELLED]: [
+        BookingStatus.PENDING, // Allow reactivating cancelled bookings
+        BookingStatus.CONFIRMED,
+      ],
+    };
 
-  const allowedTransitions = validTransitions[currentStatus] || [];
-  
-  if (!allowedTransitions.includes(newStatus)) {
-    throw new BadRequestException(
-      `Invalid transition from ${currentStatus} to ${newStatus}. Allowed transitions: ${allowedTransitions.join(', ')}`
-    );
-  }
+    const allowedTransitions = validTransitions[currentStatus] || [];
+
+    if (!allowedTransitions.includes(newStatus)) {
+      throw new BadRequestException(
+        `Invalid transition from ${currentStatus} to ${newStatus}. Allowed transitions: ${allowedTransitions.join(', ')}`,
+      );
+    }
   }
 
   async getBookingStats(): Promise<any> {

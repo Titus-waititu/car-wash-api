@@ -41,7 +41,11 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://car-wash-client-tau.vercel.app','https://car-wash-client-p9dxulh7q-titus-waititus-projects.vercel.app'],
+    origin: [
+      'http://localhost:3000',
+      'https://car-wash-client-tau.vercel.app',
+      'https://car-wash-client-p9dxulh7q-titus-waititus-projects.vercel.app',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });

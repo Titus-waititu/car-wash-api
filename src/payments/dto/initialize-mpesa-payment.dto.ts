@@ -1,7 +1,7 @@
 import {
   IsString,
   IsNotEmpty,
-  IsPhoneNumber,
+  // IsPhoneNumber,
   IsNumber,
   IsOptional,
 } from 'class-validator';

@@ -21,7 +21,7 @@ export class UsersService {
 
   //helper methods 2
   private sanitizeUser(user: User): Partial<User> {
-    const { password,hashedRefreshToken, ...sanitizedUser } = user;
+    const { password, hashedRefreshToken, ...sanitizedUser } = user;
     return sanitizedUser;
   }
 
@@ -33,14 +33,14 @@ export class UsersService {
       throw new Error('User with this email already exists');
     }
     try {
-      if(createUserDto.password){
+      if (createUserDto.password) {
         const hashedPassword = await this.hashPassword(createUserDto.password);
-      const newUser = this.usersRepository.create({
-        ...createUserDto,
-        password: hashedPassword,
-      });
-      const savedUser = await this.usersRepository.save(newUser);
-      return this.sanitizeUser(savedUser);
+        const newUser = this.usersRepository.create({
+          ...createUserDto,
+          password: hashedPassword,
+        });
+        const savedUser = await this.usersRepository.save(newUser);
+        return this.sanitizeUser(savedUser);
       }
       const newUser = this.usersRepository.create(createUserDto);
       const savedUser = await this.usersRepository.save(newUser);
@@ -188,7 +188,6 @@ export class UsersService {
           city,
           is_active: true,
         },
-        
       })
       .then((users) => users.map((user) => this.sanitizeUser(user)))
       .catch((error) => {
@@ -219,6 +218,4 @@ export class UsersService {
       averageVendorRating: parseFloat(avgRating.avg_rating) || 0,
     };
   }
-
- 
 }

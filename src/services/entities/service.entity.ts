@@ -1,7 +1,7 @@
 import { Booking } from 'src/bookings/entities/booking.entity';
 import { CarWashLocation } from 'src/car-wash-location/entities/car-wash-location.entity';
 import { Review } from 'src/reviews/entities/review.entity';
-import { ServiceCategory } from 'src/types';
+import { ServiceCategory, VehicleType } from 'src/types';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -14,16 +14,6 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-
-// Optional: Create Enums for better typing
-export enum VehicleType {
-  Sedan = 'Sedan',
-  SUV = 'SUV',
-  Truck = 'Truck',
-  Van = 'Van',
-  Motorcycle = 'Motorcycle',
-  Other = 'Other',
-}
 
 export enum FeatureType {
   Vacuum = 'Vacuum',

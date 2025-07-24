@@ -33,7 +33,7 @@ export class MailService {
     await transporter.sendMail(mailOptions);
   }
 
-  async sendLoginSuccessEmail(email: string) {
+   sendLoginSuccessEmail(email: string) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {

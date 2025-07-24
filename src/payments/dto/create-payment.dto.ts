@@ -15,7 +15,7 @@ export class CreatePaymentDto {
   payment_method: PaymentMethod;
 
   @IsOptional()
-  transaction_id:string
+  transaction_id: string;
 
   @IsNotEmpty()
   bookingId: string;

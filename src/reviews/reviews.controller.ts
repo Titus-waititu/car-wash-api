@@ -22,7 +22,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/types';
 
 @ApiTags('reviews')
-@UseGuards(RolesGuard )
+@UseGuards(RolesGuard)
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}

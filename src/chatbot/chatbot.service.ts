@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateChatbotDto, ChatQueryDto } from './dto/create-chatbot.dto';
-import { UpdateChatbotDto } from './dto/update-chatbot.dto';
+// import { UpdateChatbotDto } from './dto/update-chatbot.dto';
 import { Chatbot, ChatResponse } from './entities/chatbot.entity';
 import { ServicesService } from '../services/services.service';
 import { BookingsService } from '../bookings/bookings.service';
@@ -11,6 +11,8 @@ import { UsersService } from '../users/users.service';
 import { FleetService } from '../fleet/fleet.service';
 import { ReviewsService } from '../reviews/reviews.service';
 import { PaymentsService } from '../payments/payments.service';
+// import Together from 'together-ai';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ChatbotService {
@@ -26,6 +28,7 @@ export class ChatbotService {
     private fleetService: FleetService,
     private reviewsService: ReviewsService,
     private paymentsService: PaymentsService,
+    private readonly configService: ConfigService,
   ) {}
 
   async processQuery(chatQueryDto: ChatQueryDto): Promise<ChatResponse> {
@@ -77,7 +80,7 @@ export class ChatbotService {
         return await this.handleServicesQuery(query);
 
       case 'bookings':
-        return await this.handleBookingsQuery(query, userId);
+        return await this.handleBookingsQuery(query,userId);
 
       case 'locations':
         return await this.handleLocationsQuery(query);
@@ -92,10 +95,10 @@ export class ChatbotService {
         return await this.handleFleetQuery(query);
 
       case 'payments':
-        return await this.handlePaymentsQuery(query, userId);
+        return await this.handlePaymentsQuery(userId);
 
       case 'account':
-        return await this.handleAccountQuery(query, userId);
+        return await this.handleAccountQuery(userId);
 
       case 'greeting':
         return this.handleGreeting();
@@ -103,8 +106,79 @@ export class ChatbotService {
       case 'help':
         return this.handleHelp();
 
-      default:
-        return this.handleGeneralQuery(query);
+      case 'booking_guide':
+        return this.handleBookingGuide();
+
+      default: {
+        // If user asks for a guide or process, provide a booking guide
+        if (
+          /\b(guide|how to|process|steps|book a service|make a booking|booking process)\b/i.test(
+            query,
+          )
+        ) {
+          return this.handleBookingGuide();
+        }
+        // For queries not handled by chatbot, use Together AI model, fallback to improved general
+        const aiResponse = await this.handleTogetherAIQuery(query);
+        if (
+          aiResponse.response.includes('could not generate') ||
+          aiResponse.response.includes('trouble generating') ||
+          aiResponse.response.trim().length < 10
+        ) {
+          return this.handleGeneralQuery(query, userId);
+        }
+        return aiResponse;
+      }
+    }
+  }
+
+  // New: Booking process guide (moved outside generateResponse)
+  private handleBookingGuide(): ChatResponse {
+    return {
+      response: `Here's a quick guide to booking a car wash service with us:\n\n1. **View Services**: Browse our available car wash and detailing services.\n2. **Choose a Service**: Select the service that best fits your needs.\n3. **Pick a Location**: Choose your preferred car wash location.\n4. **Select Date & Time**: Pick a convenient date and time for your appointment.\n5. **Confirm Booking**: Provide your details and confirm your booking.\n6. **Get Confirmation**: You'll receive a confirmation message with your booking details.\n\nIf you need help at any step, just let me know! Would you like to start booking now?`,
+      suggestions: [
+        'View services',
+        'Find locations',
+        'Book now',
+        'Talk to support',
+      ],
+    };
+  }
+  // Remove the extra closing brace here that was left after moving handleBookingGuide
+
+  private async handleTogetherAIQuery(query: string): Promise<ChatResponse> {
+    try {
+      const TogetherAI = require('together-ai');
+      const together = new TogetherAI({
+        apiKey: this.configService.getOrThrow<string>('TOGETHER_API_KEY'),
+      });
+      const response = await together.chat.completions.create({
+        messages: [{ role: 'user', content: query }],
+        model: 'meta-llama/Llama-Vision-Free',
+        stream: false,
+      });
+      // If response is an array (stream), join tokens; else, get content
+      let aiResponse = '';
+      if (Array.isArray(response)) {
+        for await (const token of response) {
+          aiResponse += token.choices[0]?.delta?.content || '';
+        }
+      } else {
+        aiResponse =
+          response.choices?.[0]?.message?.content ||
+          'Sorry, I could not generate a response.';
+      }
+      return {
+        response: aiResponse,
+        suggestions: ['Ask another question', 'Get help', 'View services'],
+      };
+    } catch (error) {
+      this.logger.error('Together AI error:', error);
+      return {
+        response:
+          'I had trouble generating a response. Please try again or ask about our car wash services.',
+        suggestions: ['Try again', 'Get help', 'View services'],
+      };
     }
   }
 
@@ -237,6 +311,7 @@ export class ChatbotService {
         ],
       };
     } catch (error) {
+      console.error('Error fetching services:', error);
       return {
         response:
           'I had trouble fetching service information. Please try again.',
@@ -249,11 +324,17 @@ export class ChatbotService {
     query: string,
     userId?: string,
   ): Promise<ChatResponse> {
-    if (!userId) {
+    // Consider userId invalid if it's undefined, null, empty, or a string 'undefined'/'null'
+    if (!userId || userId === 'undefined' || userId === 'null') {
       return {
-        response:
-          'To check your bookings, I need you to be logged in. Please sign in to your account.',
-        suggestions: ['Sign in', 'Create account', 'View services'],
+        response: `I can't show your personal bookings because you're not signed in. But you can still explore our services, locations, and pricing! If you want to book or view your bookings, please sign in or create an account.`,
+        suggestions: [
+          'Sign in',
+          'Create account',
+          'View services',
+          'See booking guide',
+          'Find locations',
+        ],
       };
     }
 
@@ -286,6 +367,7 @@ export class ChatbotService {
         ],
       };
     } catch (error) {
+      console.error('Error fetching services:', error);
       return {
         response:
           'I had trouble fetching your booking information. Please try again.',
@@ -325,6 +407,7 @@ export class ChatbotService {
         ],
       };
     } catch (error) {
+      console.error('Error fetching services:', error);
       return {
         response:
           'I had trouble fetching location information. Please try again.',
@@ -353,6 +436,7 @@ export class ChatbotService {
         ],
       };
     } catch (error) {
+      console.error('Error fetching services:', error);
       return {
         response:
           'I had trouble fetching pricing information. Please contact us directly for current rates.',
@@ -390,6 +474,7 @@ export class ChatbotService {
         suggestions: ['Book a service', 'Read all reviews', 'Leave a review'],
       };
     } catch (error) {
+      console.error('Error fetching services:', error);
       return {
         response:
           'I had trouble fetching review information. Please try again.',
@@ -412,7 +497,7 @@ export class ChatbotService {
   }
 
   private async handlePaymentsQuery(
-    query: string,
+    // query: string,
     userId?: string,
   ): Promise<ChatResponse> {
     if (!userId) {
@@ -436,7 +521,7 @@ export class ChatbotService {
   }
 
   private async handleAccountQuery(
-    query: string,
+    // query: string,
     userId?: string,
   ): Promise<ChatResponse> {
     if (!userId) {
@@ -459,6 +544,7 @@ export class ChatbotService {
         ],
       };
     } catch (error) {
+      console.error('Error fetching services:', error);
       return {
         response:
           'I can help you with account-related questions. What would you like to know?',
@@ -507,14 +593,35 @@ Just ask me anything about our car wash services!`,
     };
   }
 
-  private handleGeneralQuery(query: string): ChatResponse {
+  private handleGeneralQuery(query: string, userId?: string): ChatResponse {
+    // More helpful, context-aware fallback
+    if (userId) {
+      return {
+        response:
+          `You're logged in! Here are some things you can do next:\n\n` +
+          `• **Book a Service**: Schedule a car wash or detailing\n` +
+          `• **View Services**: See all our car wash and detailing options\n` +
+          `• **Booking History**: Check your past and upcoming bookings\n` +
+          `• **Payments**: Review your payment history and invoices\n` +
+          `• **Account Settings**: Update your profile and vehicles\n\n` +
+          `If you want to book a service, just say "book a service" or ask for a guide!`,
+        suggestions: [
+          'Book a service',
+          'View my bookings',
+          'See available services',
+          'Check payment history',
+          'How do I book?',
+        ],
+      };
+    }
+    // Fallback for guests
     return {
-      response: `I understand you're asking about "${query}". While I don't have specific information about that, I can help you with our car wash services, bookings, locations, and more. What specific information are you looking for?`,
+      response: `I can help you with anything related to our car wash services, bookings, locations, pricing, and more.\n\nIf you want to book a service, just ask! Or, if you need a step-by-step guide, say "guide me on booking".\n\nWhat would you like to do?`,
       suggestions: [
         'View services',
         'Book appointment',
         'Find locations',
-        'Get help',
+        'How do I book?',
       ],
     };
   }
@@ -540,39 +647,8 @@ Just ask me anything about our car wash services!`,
     return await this.createConversation(createChatbotDto);
   }
 
-  async findAll() {
-    return await this.chatbotRepository.find({
-      relations: ['user'],
-      order: { created_at: 'DESC' },
-    });
-  }
-
-  async findOne(id: string) {
-    return await this.chatbotRepository.findOne({
-      where: { id },
-      relations: ['user'],
-    });
-  }
-
-  async findBySession(sessionId: string) {
-    return await this.chatbotRepository.find({
-      where: { sessionId },
-      relations: ['user'],
-      order: { created_at: 'ASC' },
-    });
-  }
-
-  async findByUser(userId: string) {
-    return await this.chatbotRepository.find({
-      where: { userId },
-      relations: ['user'],
-      order: { created_at: 'DESC' },
-    });
-  }
-
-  async update(id: string, updateChatbotDto: UpdateChatbotDto) {
-    await this.chatbotRepository.update(id, updateChatbotDto);
-    return await this.findOne(id);
+  async findOne(id: string): Promise<Chatbot | null> {
+    return await this.chatbotRepository.findOne({ where: { id } });
   }
 
   async remove(id: string) {

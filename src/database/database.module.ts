@@ -9,7 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         return {
-          type:'postgres',
+          type: 'postgres',
           url: configService.get<string>('DATABASE_URL'),
           // host: configService.getOrThrow<string>('DATABASE_HOST', 'localhost'),
           // port: configService.getOrThrow<number>('DATABASE_PORT', 5432),
@@ -17,12 +17,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           // password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
           // database: configService.getOrThrow<string>('DATABASE_NAME'),
           autoLoadEntities: true,
-          synchronize:configService.getOrThrow<boolean>('TYPEORM_SYNC', true),
+          synchronize: configService.getOrThrow<boolean>('TYPEORM_SYNC', true),
           logging: configService.getOrThrow<boolean>('TYPEORM_LOGGING', false),
-          ssl:{
-            rejectUnauthorized: false, 
+          ssl: {
+            rejectUnauthorized: false,
           },
-        }
+        };
       },
       inject: [ConfigService],
     }),

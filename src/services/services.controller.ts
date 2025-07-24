@@ -77,7 +77,7 @@ export class ServicesController {
     return this.servicesService.findByPriceRange(minPrice, maxPrice);
   }
 
-    @Get('compare/:category')
+  @Get('compare/:category')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Compare service prices by category' })
   @ApiQuery({ name: 'latitude', required: false, description: 'User latitude' })
@@ -192,6 +192,4 @@ export class ServicesController {
   remove(@Param('id') id: string) {
     return this.servicesService.remove(id);
   }
-
-
 }

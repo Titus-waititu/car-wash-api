@@ -12,8 +12,8 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { ServiceCategory } from 'src/types';
-import { FeatureType, VehicleType } from 'src/services/entities/service.entity';
+import { ServiceCategory, VehicleType } from 'src/types';
+import { FeatureType } from 'src/services/entities/service.entity';
 
 export class CreateServiceDto {
   @IsString()
@@ -55,7 +55,6 @@ export class CreateServiceDto {
   @IsOptional()
   @IsBoolean()
   is_mobile_service?: boolean;
-
 
   @IsOptional()
   @IsArray()

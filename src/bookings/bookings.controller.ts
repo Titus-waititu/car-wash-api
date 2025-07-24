@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  ParseIntPipe,
   ValidationPipe,
   HttpCode,
   HttpStatus,
@@ -29,7 +28,7 @@ export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Create a new booking' })
   @ApiResponse({ status: 201, description: 'Booking created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
@@ -38,7 +37,7 @@ export class BookingsController {
   }
 
   @Get()
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all bookings' })
   @ApiQuery({
     name: 'status',
@@ -52,7 +51,7 @@ export class BookingsController {
   }
 
   @Get('stats')
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get booking statistics' })
   @ApiResponse({
     status: 200,
@@ -74,7 +73,7 @@ export class BookingsController {
   }
 
   @Get('service/:serviceId')
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get bookings by service ID' })
   @ApiResponse({
     status: 200,
@@ -85,7 +84,7 @@ export class BookingsController {
   }
 
   @Get('date-range')
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get bookings by date range' })
   @ApiQuery({
     name: 'startDate',
@@ -121,7 +120,7 @@ export class BookingsController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update booking by ID' })
   @ApiResponse({ status: 200, description: 'Booking updated successfully.' })
   @ApiResponse({ status: 404, description: 'Booking not found.' })
@@ -133,17 +132,14 @@ export class BookingsController {
   }
 
   @Patch(':id/status')
-  @Roles(UserRole.ADMIN,UserRole.VENDOR,UserRole.CUSTOMER)
+  @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Update booking status' })
   @ApiResponse({
     status: 200,
     description: 'Booking status updated successfully.',
   })
   @ApiResponse({ status: 400, description: 'Invalid status transition.' })
-  updateStatus(
-    @Param('id') id: string,
-    @Body('status') status: BookingStatus,
-  ) {
+  updateStatus(@Param('id') id: string, @Body('status') status: BookingStatus) {
     return this.bookingsService.updateBookingStatus(id, status);
   }
 
@@ -156,7 +152,6 @@ export class BookingsController {
   remove(@Param('id') id: string) {
     return this.bookingsService.remove(id);
   }
-
 
   @Patch(':id/start')
   @Roles(UserRole.ADMIN, UserRole.VENDOR)

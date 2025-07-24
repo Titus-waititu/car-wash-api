@@ -10,7 +10,7 @@ import { UserRole } from 'src/types';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
-   private readonly configService: ConfigService,
+    private readonly configService: ConfigService,
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {
     super({
@@ -29,31 +29,30 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     const { id, name, emails, photos } = profile;
 
-      // Check if user already exists in DB
-  let user = await this.userRepository.findOne({
-    where: [{ email: emails[0].value }],
-  });
-
-     // Create user if doesn't exist
-  if (!user) {
-    user = this.userRepository.create({
-      email: emails[0].value,
-      username: name.givenName || name.familyName,
-      role: UserRole.CUSTOMER, 
-      image_url: photos[0].value,
+    // Check if user already exists in DB
+    let user = await this.userRepository.findOne({
+      where: [{ email: emails[0].value }],
     });
-    await this.userRepository.save(user);
-  }
+
+    // Create user if doesn't exist
+    if (!user) {
+      user = this.userRepository.create({
+        email: emails[0].value,
+        username: name.givenName || name.familyName,
+        role: UserRole.CUSTOMER,
+        image_url: photos[0].value,
+      });
+      await this.userRepository.save(user);
+    }
 
     done(null, {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-        image_url: photos[0].value,
-        providerId: id,
-        provider: 'google',
-
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      image_url: photos[0].value,
+      providerId: id,
+      provider: 'google',
     });
   }
 }

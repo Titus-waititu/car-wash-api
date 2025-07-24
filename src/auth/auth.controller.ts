@@ -15,7 +15,7 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { Request, Response } from 'express';
 import { RtGuard } from './guards/rt.guard';
 import { GoogleOauthGuard } from './guards/google.oauth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+// import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 
@@ -88,7 +88,7 @@ export class AuthController {
   }
 
   @Get('me')
-  async getMe(@Req() req: Request) {
+   getMe(@Req() req: Request) {
     // `req.user` is populated by AtStrategy (global guard)
     if (!req.user) {
       throw new UnauthorizedException('User not authenticated');

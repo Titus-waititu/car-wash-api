@@ -10,6 +10,7 @@ import {
   Min,
   Max,
   IsUUID,
+  IsBoolean,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ServiceProviderStatus, UserRole } from 'src/types';
@@ -118,6 +119,15 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   image_url?: string;
+
+  // add is active field for vendors
+  @ApiPropertyOptional({
+    description: 'Is the vendor active?',
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
 
   @ApiPropertyOptional({
     description: 'Business license number',

@@ -7,9 +7,10 @@ import { CreateFleetDto } from './dto/create-fleet.dto';
 import { UpdateFleetDto } from './dto/update-fleet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fleet } from './entities/fleet.entity';
-import { ILike, Repository } from 'typeorm';
+// import { ILike, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { VehicleStatus, VehicleType } from 'src/types';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class FleetService {
@@ -176,8 +177,12 @@ export class FleetService {
     const [total, waiting, inProgress, completed] = await Promise.all([
       this.fleetRepository.count(),
       this.fleetRepository.count({ where: { status: VehicleStatus.WAITING } }),
-      this.fleetRepository.count({ where: { status: VehicleStatus.IN_PROGRESS } }),
-      this.fleetRepository.count({ where: { status: VehicleStatus.COMPLETED } }),
+      this.fleetRepository.count({
+        where: { status: VehicleStatus.IN_PROGRESS },
+      }),
+      this.fleetRepository.count({
+        where: { status: VehicleStatus.COMPLETED },
+      }),
     ]);
 
     return {
@@ -216,7 +221,9 @@ export class FleetService {
     return await this.fleetRepository
       .createQueryBuilder('fleet')
       .leftJoinAndSelect('fleet.user', 'user')
-      .where('LOWER(fleet.type) LIKE :type', { type: `%${type.toLowerCase()}%` })
+      .where('LOWER(fleet.type) LIKE :type', {
+        type: `%${type.toLowerCase()}%`,
+      })
       .getMany();
   }
 }

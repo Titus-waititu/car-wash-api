@@ -22,7 +22,7 @@ export class Review {
 
   @Column({ type: 'boolean', default: false })
   isReply: boolean;
-  
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

@@ -8,7 +8,7 @@
 ### ========== USERS ==========
 
 ### Get all users
-GET {{baseUrl}}/locations
+GET {{baseUrl}}/services
 Authorization: Bearer {{AccessToken}}
 
 ### Create a new user
@@ -1488,55 +1488,6 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/invoice/stats
 Authorization: Bearer {{AccessToken}}
 
-### Filter invoices by date range (if implemented)
-# GET {{baseUrl}}/invoice?startDate=2025-07-01&endDate=2025-07-31
-
-### Get invoices sorted by amount (if implemented)
-# GET {{baseUrl}}/invoice?sortBy=total_amount&order=desc
-
-### Get recent invoices (if implemented)
-# GET {{baseUrl}}/invoice?limit=10&offset=0
-
-### ========== EXPECTED RESPONSES ==========
-
-# Create Invoice Success Response:
-# {
-#   "id": "uuid",
-#   "invoice_number": "INV-202507-0001",
-#   "amount": 25.00,
-#   "tax_amount": 5.50,
-#   "total_amount": 30.50,
-#   "status": "pending",
-#   "due_date": "2025-08-21T10:00:00.000Z",
-#   "notes": "Standard car wash service - Premium package",
-#   "created_at": "2025-07-21T...",
-#   "updated_at": "2025-07-21T...",
-#   "booking": { ... },
-#   "user": { ... }
-# }
-
-# Invoice Statistics Response:
-# {
-#   "total_invoices": 150,
-#   "paid_invoices": 120,
-#   "pending_invoices": 25,
-#   "overdue_invoices": 5,
-#   "total_revenue": 15750.50
-# }
-
-# Send Invoice Success Response:
-# {
-#   "id": "uuid",
-#   "status": "sent",
-#   "sent_at": "2025-07-21T...",
-#   ...
-# }
-
-# Mark as Paid Success Response:
-# {
-#   "id": "uuid",
-#   "status": "paid",
-#   "paid_at": "2025-07-21T...",
-#   "payment": { ... },
-#   ...
-# }
+### Service pricing routes
+GET {{baseUrl}}/services/pricing
+Authorization: Bearer {{AccessToken}}

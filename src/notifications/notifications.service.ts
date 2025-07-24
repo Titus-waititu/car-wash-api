@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, MoreThan } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   Notification,
   NotificationType,
@@ -182,12 +182,12 @@ export class NotificationsService {
     notificationIds: string[],
     userId: string,
   ): Promise<void> {
-    const notifications = await this.notificationRepository.find({
-      where: {
-        id: { $in: notificationIds } as any,
-        recipient: { id: userId },
-      },
-    });
+    // const notifications = await this.notificationRepository.find({
+    //   where: {
+    //     id: { $in: notificationIds } as any,
+    //     recipient: { id: userId },
+    //   },
+    // });
 
     await this.notificationRepository.update(
       { id: { $in: notificationIds } as any, recipient: { id: userId } },

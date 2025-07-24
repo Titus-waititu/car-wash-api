@@ -84,6 +84,7 @@ export class AuthService {
         'role',
         'password',
         'hashedRefreshToken',
+        'is_active',
       ],
     });
 
@@ -91,6 +92,13 @@ export class AuthService {
       return {
         success: false,
         message: 'Invalid credentials',
+      };
+    }
+
+    if (user.is_active === false) {
+      return {
+        success: false,
+        message: 'Account is inactive. Please contact support.',
       };
     }
 
@@ -123,7 +131,6 @@ export class AuthService {
       },
     };
   }
-
   async logout(userId: string) {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
@@ -212,7 +219,7 @@ export class AuthService {
     return user;
   }
 
-  async generateResetToken(userId: string, email: string) {
+   generateResetToken(userId: string, email: string) {
     return this.jwtService.sign(
       { userId, email },
       {
@@ -239,7 +246,7 @@ export class AuthService {
       }
       return user.id;
     } catch (error) {
-      return null;
+      return `Invalid or expired reset token: ${error.message}`;
     }
   }
 

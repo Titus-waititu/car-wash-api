@@ -9,7 +9,6 @@ import {
   Relation,
 } from 'typeorm';
 
-
 @Entity()
 export class Fleet {
   @PrimaryGeneratedColumn('uuid')
@@ -22,7 +21,7 @@ export class Fleet {
   @Column()
   model: string;
 
-  @Column({ type: 'enum', enum: VehicleType , default: VehicleType.Sedan})
+  @Column({ type: 'enum', enum: VehicleType, default: VehicleType.Sedan })
   type: VehicleType;
 
   @Column({ nullable: true })
@@ -40,8 +39,8 @@ export class Fleet {
   @Column({ nullable: true })
   vin_number: string;
 
-  @Column({type: 'enum', enum: VehicleState, default: VehicleState.AVAILABLE})
-  state:VehicleState;
+  @Column({ type: 'enum', enum: VehicleState, default: VehicleState.AVAILABLE })
+  state: VehicleState;
 
   // Wash/service status tracking
   @Column({

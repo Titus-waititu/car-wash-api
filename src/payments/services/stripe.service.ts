@@ -248,7 +248,7 @@ export class StripeService {
     }
   }
 
-  async processWebhookEvent(event: any): Promise<any> {
+   processWebhookEvent(event: any) {
     try {
       switch (event.type) {
         case 'payment_intent.succeeded':

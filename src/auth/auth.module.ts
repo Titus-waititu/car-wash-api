@@ -30,7 +30,7 @@ import { MailService } from 'src/mail/mail.service';
     JwtStrategy,
     RolesGuard,
     GoogleStrategy,
-    MailService
+    MailService,
   ],
   exports: [JwtModule, RolesGuard, AuthService],
 })

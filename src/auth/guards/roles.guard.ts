@@ -9,7 +9,7 @@ import { UserRole } from 'src/types';
 import { JWTPayload } from '../strategies/at.strategy';
 
 interface UserRequest extends Request {
-  user?: JWTPayload; 
+  user?: JWTPayload;
 }
 
 @Injectable()
@@ -21,25 +21,26 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = await this.reflector.getAllAndOverride<UserRole[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (!requiredRoles) {
-      return true; 
+      return true;
     }
     const request = context.switchToHttp().getRequest<UserRequest>();
     const user = request.user;
 
     if (!user) {
-      return false; 
+      return false;
     }
 
-    const userRole = context.switchToHttp().getRequest<UserRequest>().user?.role;
+    const userRole = context.switchToHttp().getRequest<UserRequest>()
+      .user?.role;
 
     if (!userRole) {
-      return false; 
+      return false;
     }
 
     return requiredRoles.some((role) => userRole === role);

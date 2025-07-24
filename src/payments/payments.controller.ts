@@ -21,12 +21,21 @@ import { InitializePaymentDto } from './dto/initialize-payment.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { InitializeMpesaPaymentDto } from './dto/initialize-mpesa-payment.dto';
 import { InitializeStripePaymentDto } from './dto/initialize-stripe-payment.dto';
-import { VerifyMpesaPaymentDto, VerifyStripePaymentDto } from './dto/verify-payments.dto';
+import {
+  VerifyMpesaPaymentDto,
+  VerifyStripePaymentDto,
+} from './dto/verify-payments.dto';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/types';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiHeader } from '@nestjs/swagger';
-import { Public } from 'src/auth/decorators/public.decorator';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiHeader,
+} from '@nestjs/swagger';
+// import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiTags('payments')
 @Controller('payments')
@@ -47,7 +56,11 @@ export class PaymentsController {
   @Get()
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get all payments or filter by user' })
-  @ApiQuery({ name: 'userId', required: false, description: 'Filter payments by user ID' })
+  @ApiQuery({
+    name: 'userId',
+    required: false,
+    description: 'Filter payments by user ID',
+  })
   @ApiResponse({ status: 200, description: 'Payments retrieved successfully.' })
   findAll(@Query('userId') userId?: string) {
     return this.paymentsService.findAll(userId);
@@ -56,7 +69,10 @@ export class PaymentsController {
   @Get('statistics')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get payment statistics' })
-  @ApiResponse({ status: 200, description: 'Payment statistics retrieved successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment statistics retrieved successfully.',
+  })
   getStatistics() {
     return this.paymentsService.getPaymentStatistics();
   }
@@ -64,7 +80,10 @@ export class PaymentsController {
   @Get('booking/:bookingId')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Get payments for a specific booking' })
-  @ApiResponse({ status: 200, description: 'Booking payments retrieved successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Booking payments retrieved successfully.',
+  })
   getPaymentsByBooking(@Param('bookingId') bookingId: string) {
     return this.paymentsService.getPaymentsByBooking(bookingId);
   }
@@ -128,7 +147,10 @@ export class PaymentsController {
   @Post('mpesa/initialize')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Initialize M-Pesa STK Push payment' })
-  @ApiResponse({ status: 201, description: 'M-Pesa payment initialized successfully.' })
+  @ApiResponse({
+    status: 201,
+    description: 'M-Pesa payment initialized successfully.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid phone number or booking.' })
   initializeMpesaPayment(@Body() initializeDto: InitializeMpesaPaymentDto) {
     return this.paymentsService.initializeMpesaPayment(initializeDto);
@@ -137,7 +159,10 @@ export class PaymentsController {
   @Post('mpesa/verify')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Verify M-Pesa payment status' })
-  @ApiResponse({ status: 200, description: 'M-Pesa payment verified successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'M-Pesa payment verified successfully.',
+  })
   verifyMpesaPayment(@Body() verifyDto: VerifyMpesaPaymentDto) {
     return this.paymentsService.verifyMpesaPayment(verifyDto);
   }
@@ -155,8 +180,13 @@ export class PaymentsController {
 
   @Post('stripe/initialize')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
-  @ApiOperation({ summary: 'Initialize Stripe payment (Payment Intent or Checkout Session)' })
-  @ApiResponse({ status: 201, description: 'Stripe payment initialized successfully.' })
+  @ApiOperation({
+    summary: 'Initialize Stripe payment (Payment Intent or Checkout Session)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Stripe payment initialized successfully.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid booking or payment data.' })
   initializeStripePayment(@Body() initializeDto: InitializeStripePaymentDto) {
     return this.paymentsService.initializeStripePayment(initializeDto);
@@ -165,7 +195,10 @@ export class PaymentsController {
   @Post('stripe/verify')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Verify Stripe payment status' })
-  @ApiResponse({ status: 200, description: 'Stripe payment verified successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Stripe payment verified successfully.',
+  })
   verifyStripePayment(@Body() verifyDto: VerifyStripePaymentDto) {
     return this.paymentsService.verifyStripePayment(verifyDto);
   }
@@ -179,7 +212,10 @@ export class PaymentsController {
     @Req() req,
     @Headers('stripe-signature') signature: string,
   ) {
-    return this.paymentsService.processStripeWebhook(req.rawBody ? req.rawBody.toString() : req.body, signature);
+    return this.paymentsService.processStripeWebhook(
+      req.rawBody ? req.rawBody.toString() : req.body,
+      signature,
+    );
   }
 
   // ==================== LEGACY ENDPOINTS (for backward compatibility) ====================
@@ -187,7 +223,10 @@ export class PaymentsController {
   @Post('initialize')
   @Roles(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER)
   @ApiOperation({ summary: 'Legacy: Initialize payment (Paystack)' })
-  @ApiResponse({ status: 201, description: 'Payment initialized successfully.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Payment initialized successfully.',
+  })
   legacyInitializePayment(@Body() initializeDto: InitializePaymentDto) {
     // For backward compatibility, redirect to appropriate service
     if (initializeDto.email) {
@@ -220,7 +259,7 @@ export class PaymentsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Legacy: Payment webhook (Paystack)' })
   @ApiResponse({ status: 200, description: 'Webhook processed successfully.' })
-  legacyWebhook(@Body() payload: any) {
+  legacyWebhook() {
     // For backward compatibility - you can implement Paystack webhook handling here
     return { status: 'success', message: 'Legacy webhook processed' };
   }
